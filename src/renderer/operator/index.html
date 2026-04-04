@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUMEN | Operator Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #020617;
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --accent-blue: #38bdf8;
+            --glow-blue: 0 0 15px rgba(56, 189, 248, 0.6);
+            --accent-red: #ef4444;
+            --glow-red: 0 0 15px rgba(239, 68, 68, 0.6);
+            --accent-green: #22c55e;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --card-bg: rgba(51, 65, 85, 0.5);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .preview-content {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            height: 100vh;
+            display: grid;
+            grid-template-rows: 60px 1fr;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 50% 50%, #1e293b 0%, #020617 100%);
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: var(--glass-border);
+            z-index: 1000;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--text-main);
+        }
+
+        .logo-text span { color: var(--accent-blue); }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        /* Main Layout */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 340px 1fr 340px;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Library Sidebar */
+        aside.library {
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            border-right: var(--glass-border);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        aside h2 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+
+        .media-list {
+            list-style: none;
+            overflow-y: auto;
+            flex-grow: 1;
+            padding-right: 5px;
+        }
+
+        .media-list::-webkit-scrollbar { width: 4px; }
+        .media-list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+
+        .media-item {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .media-thumb {
+            width: 80px;
+            height: 45px;
+            background: #000;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .media-thumb::after {
+            content: "▶";
+            font-size: 10px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .media-info {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .media-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 2px;
+        }
+
+        .media-meta {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .media-item:hover {
+            background: rgba(71, 85, 105, 0.6);
+            transform: translateY(-2px);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .media-item.selected {
+            background: rgba(56, 189, 248, 0.1);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+        }
+
+        /* Center Preview */
+        main.preview-area {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 24px;
+            overflow: hidden;
+        }
+
+        .preview-container {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border-radius: 16px;
+            border: 2px solid #334155;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-container::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .preview-label {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 6px 14px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(5px);
+            border: var(--glass-border);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .preview-label span {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-red);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-red);
+        }
+
+        /* Controls */
+        .main-controls {
+            display: grid;
+            grid-template-columns: 1fr 180px 1fr;
+            gap: 30px;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .btn-group { display: flex; gap: 15px; }
+
+        .btn-lumen {
+            padding: 16px 32px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9, #2563eb);
+            color: white;
+            box-shadow: var(--glow-blue);
+            font-size: 1.2rem;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.8);
+            transform: scale(1.02);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #991b1b);
+            color: white;
+            box-shadow: var(--glow-red);
+            flex: 1;
+        }
+
+        .btn-secondary {
+            background: #334155;
+            color: var(--text-main);
+            border: var(--glass-border);
+            flex: 1;
+        }
+
+        .btn-lumen:active { transform: scale(0.98); }
+
+        /* Right Panel */
+        aside.status {
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            border-left: var(--glass-border);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .control-group {
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 12px;
+            padding: 16px;
+            border: var(--glass-border);
+        }
+
+        .group-title {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        /* Custom Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #334155;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider { background-color: var(--accent-green); }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        .ticker-input {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 12px;
+            color: white;
+            margin-bottom: 10px;
+            outline: none;
+        }
+
+        .ticker-input:focus { border-color: var(--accent-blue); }
+
+        .clock-display { font-family: monospace; font-size: 1.2rem; color: var(--accent-blue); font-weight: bold; }
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-area">
+            <div class="logo-text">LU<span>MEN</span></div>
+            <div style="width: 1px; height: 20px; background: rgba(255,255,255,0.2);"></div>
+            <div style="font-weight: 600; color: var(--text-dim);">Media Library</div>
+        </div>
+        <div class="header-info">
+            <div id="dateDisplay">04/04/2026</div>
+            <div id="clockDisplay" class="clock-display">14:46:00</div>
+            <div style="display:flex; gap:10px;">
+                <span title="Stage Status" style="color:var(--accent-green)">● Stage Active</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- Sidebar Media -->
+        <aside class="library">
+            <div class="section-header">
+                <h2>Media Library</h2>
+                <span id="mediaCount" style="font-size: 0.7rem; background: var(--accent-blue); color: #000; padding: 1px 6px; border-radius: 10px; font-weight: 700;">3</span>
+            </div>
+            
+            <ul class="media-list" id="mediaList">
+                <!-- Items added dynamically -->
+            </ul>
+
+            <div style="margin-top: auto;">
+                <button class="btn-lumen btn-secondary" style="width: 100%; font-size: 0.8rem; margin-bottom: 10px;" id="btnClearLibrary">Clear Library</button>
+                <div style="text-align: center; font-size: 0.7rem; color: var(--text-dim);">Drop files to add</div>
+            </div>
+        </aside>
+
+        <!-- Preview Area -->
+        <main class="preview-area">
+            <div class="preview-label">
+                <span></span> LIVE PREVIEW — STAGE FEED
+            </div>
+            <div class="preview-container" id="previewMirror">
+                <p style="color: #334155; font-weight: 600; font-size: 1.2rem;">NO SIGNAL</p>
+            </div>
+
+            <div class="main-controls">
+                <div class="btn-group">
+                    <button class="btn-lumen btn-secondary" id="btnFreeze">FREEZE</button>
+                </div>
+
+                <button class="btn-lumen btn-primary" id="btnGo">GO LIVE</button>
+
+                <div class="btn-group">
+                    <button class="btn-lumen btn-danger" id="btnStop">BLACKOUT</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Panels -->
+        <aside class="status">
+            <div class="control-group">
+                <div class="group-title">Overlays</div>
+                <div class="toggle-row">
+                    <span>Event Logo</span>
+                    <label class="switch">
+                        <input type="checkbox" id="btnToggleLogo">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="group-title">Ticker Text</div>
+                <textarea id="tickerInput" class="ticker-input" rows="3" placeholder="Nhập chữ chạy..."></textarea>
+                <button class="btn-lumen btn-primary" style="width:100%; font-size:0.9rem; padding:10px;" id="btnUpdateTicker">Update Ticker</button>
+                <button class="btn-lumen btn-secondary" style="width:100%; font-size:0.8rem; padding:8px; margin-top:10px;" id="btnHideTicker">Hide Ticker</button>
+            </div>
+
+            <div class="control-group">
+                <div class="group-title">System Hotkeys</div>
+                <div style="font-size: 0.8rem; color: var(--text-dim); line-height: 1.6;">
+                    <div style="display:flex; justify-content:space-between;"><span>SPACE</span> <span style="color:var(--accent-blue)">GO LIVE</span></div>
+                    <div style="display:flex; justify-content:space-between;"><span>ESC</span> <span style="color:var(--accent-red)">BLACKOUT</span></div>
+                    <div style="display:flex; justify-content:space-between;"><span>F</span> <span style="color:var(--text-main)">FREEZE</span></div>
+                </div>
+            </div>
+
+            <div style="margin-top: auto; text-align: center; font-size: 0.65rem; color: rgba(255,255,255,0.2);">
+                LUMEN v1.0.0 PROTOTYPE
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        const mediaList = document.getElementById('mediaList');
+        const previewMirror = document.getElementById('previewMirror');
+        const mediaCountBadge = document.getElementById('mediaCount');
+        const clockDisplay = document.getElementById('clockDisplay');
+        const dateDisplay = document.getElementById('dateDisplay');
+        
+        let selectedMedia = null;
+
+        // Clock & Date Logic
+        function updateTime() {
+            const now = new Date();
+            clockDisplay.innerText = now.toLocaleTimeString('en-GB');
+            dateDisplay.innerText = now.toLocaleDateString('en-GB');
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        function updateMediaCount() {
+            mediaCountBadge.innerText = document.querySelectorAll('.media-item').length;
+        }
+
+        // Overlay Controls
+        document.getElementById('btnToggleLogo').addEventListener('change', (e) => {
+            ipcRenderer.send('control-action', 'TOGGLE_LOGO');
+        });
+
+        document.getElementById('btnUpdateTicker').addEventListener('click', () => {
+            const text = document.getElementById('tickerInput').value;
+            if (text) ipcRenderer.send('control-action', 'UPDATE_TICKER', { text });
+        });
+
+        document.getElementById('btnHideTicker').addEventListener('click', () => {
+            ipcRenderer.send('control-action', 'HIDE_TICKER');
+        });
+
+        // Hotkeys
+        window.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return; 
+
+            if (e.code === 'Space') {
+                e.preventDefault();
+                document.getElementById('btnGo').click();
+            } else if (e.code === 'Escape') {
+                document.getElementById('btnStop').click();
+            } else if (e.code === 'KeyF') {
+                document.getElementById('btnFreeze').click();
+            }
+        });
+
+        // Drag & Drop Logic
+        document.body.addEventListener('dragover', (e) => {
+            e.preventDefault(); e.stopPropagation();
+        });
+
+        document.body.addEventListener('drop', (e) => {
+            e.preventDefault(); e.stopPropagation();
+            for (const f of e.dataTransfer.files) {
+                addMediaItem(f.path, f.name);
+            }
+        });
+
+        function addMediaItem(filePath, fileName, typeFromStorage = null, skipSave = false) {
+            let type = typeFromStorage;
+            if (!type) {
+                const ext = filePath.split('.').pop().toLowerCase();
+                type = 'image';
+                if (['mp4', 'mov', 'webm', 'mkv'].includes(ext)) type = 'video';
+            }
+
+            const li = document.createElement('li');
+            li.className = 'media-item';
+            li.dataset.path = filePath;
+            li.dataset.type = type;
+            
+            li.innerHTML = `
+                <div class="media-thumb">
+                    ${type === 'video' ? '<span>▶</span>' : '<span>🖼</span>'}
+                </div>
+                <div class="media-info">
+                    <div class="media-name">${fileName}</div>
+                    <div class="media-meta">${type.toUpperCase()}</div>
+                </div>
+            `;
+
+            li.addEventListener('click', () => {
+                document.querySelectorAll('.media-item').forEach(i => i.classList.remove('selected'));
+                li.classList.add('selected');
+                selectedMedia = { path: filePath, name: fileName, type: type };
+            });
+
+            mediaList.appendChild(li);
+            updateMediaCount();
+
+            if (!skipSave) saveLibrary();
+        }
+
+        function saveLibrary() {
+            const items = [];
+            document.querySelectorAll('.media-item').forEach(li => {
+                items.push({
+                    path: li.dataset.path,
+                    name: li.querySelector('.media-name').innerText,
+                    type: li.dataset.type
+                });
+            });
+            localStorage.setItem('lumen-library', JSON.stringify(items));
+        }
+
+        function loadLibrary() {
+            const data = localStorage.getItem('lumen-library');
+            if (data) {
+                const items = JSON.parse(data);
+                mediaList.innerHTML = '';
+                items.forEach(item => {
+                    addMediaItem(item.path, item.name, item.type, true);
+                });
+            }
+            updateMediaCount();
+        }
+
+        document.getElementById('btnClearLibrary').addEventListener('click', () => {
+            if (confirm('Xóa sạch thư viện media?')) {
+                localStorage.removeItem('lumen-library');
+                mediaList.innerHTML = '';
+                updateMediaCount();
+            }
+        });
+
+        // Tự động load khi khởi chạy
+        window.addEventListener('DOMContentLoaded', loadLibrary);
+
+        document.getElementById('btnGo').addEventListener('click', () => {
+            if (selectedMedia) {
+                ipcRenderer.send('go-live', selectedMedia);
+                
+                const oldVideo = previewMirror.querySelector('video');
+                if (oldVideo) {
+                    oldVideo.pause();
+                    oldVideo.src = "";
+                    oldVideo.load();
+                }
+                
+                // Cập nhật Live Mirror thực tế
+                previewMirror.innerHTML = '';
+                let content;
+                if (selectedMedia.type === 'video') {
+                    content = document.createElement('video');
+                    content.src = `file://${selectedMedia.path}`;
+                    content.autoplay = true;
+                    content.loop = true;
+                    content.muted = true;
+                    content.className = 'preview-content';
+                } else {
+                    content = document.createElement('img');
+                    content.src = `file://${selectedMedia.path}`;
+                    content.className = 'preview-content';
+                }
+                previewMirror.appendChild(content);
+            }
+        });
+
+        document.getElementById('btnStop').addEventListener('click', () => {
+            ipcRenderer.send('control-action', 'BLACK');
+            
+            const oldVideo = previewMirror.querySelector('video');
+            if (oldVideo) {
+                oldVideo.pause();
+                oldVideo.src = "";
+                oldVideo.load();
+            }
+            
+            previewMirror.innerHTML = '<p style="color: #334155; font-weight: 600;">BLACKOUT</p>';
+        });
+
+        document.getElementById('btnFreeze').addEventListener('click', () => {
+            ipcRenderer.send('control-action', 'FREEZE');
+            
+            const video = previewMirror.querySelector('video');
+            if (video) {
+                if (video.paused) video.play();
+                else video.pause();
+            }
+        });
+
+        // Nhận tín hiệu đồng bộ từ Stage
+        ipcRenderer.on('sync-time', (event, stageTime) => {
+            const video = previewMirror.querySelector('video');
+            if (video && !video.paused) {
+                const diff = Math.abs(video.currentTime - stageTime);
+                if (diff > 0.3) {
+                    video.currentTime = stageTime;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

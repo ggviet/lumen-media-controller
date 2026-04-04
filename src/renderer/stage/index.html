@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUMEN - Stage Screen</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: black;
+            color: white;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+        }
+
+        #mediaContainer {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .media-layer {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+            background: black;
+        }
+
+        .media-layer.active {
+            opacity: 1;
+            z-index: 10;
+        }
+
+        .media-content {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            object-fit: contain;
+        }
+
+        /* Overlays */
+        #brandingLayer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 500;
+        }
+
+        .logo-widget {
+            position: absolute;
+            top: 40px; right: 40px;
+            width: 150px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .logo-widget.visible { opacity: 0.8; }
+
+        .ticker-container {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.7);
+            border-top: 2px solid #3b82f6;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            opacity: 0;
+            transition: transform 0.5s, opacity 0.5s;
+            transform: translateY(100%);
+        }
+
+        .ticker-container.visible { opacity: 1; transform: translateY(0); }
+
+        .ticker-text {
+            white-space: nowrap;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            padding-left: 100%;
+            animation: marquee 20s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .black-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: black;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .status-badge {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            color: #444; /* Semi-invisible in dark */
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div id="layerA" class="media-layer active"></div>
+    <div id="layerB" class="media-layer"></div>
+    
+    <div id="brandingLayer">
+        <div class="logo-widget" id="logoWidget">
+            <svg viewBox="0 0 100 100" width="100" height="100">
+                <circle cx="50" cy="50" r="40" fill="#3b82f6" opacity="0.8"/>
+                <text x="50" y="55" font-size="20" text-anchor="middle" fill="white" font-weight="bold">LUMEN</text>
+            </svg>
+        </div>
+        <div class="ticker-container" id="tickerContainer">
+            <div class="ticker-text" id="tickerText">Chào mừng quý vị đại biểu đến với sự kiện!</div>
+        </div>
+    </div>
+
+    <div class="black-overlay" id="blackOverlay"></div>
+    <div class="status-badge">LUMEN LIVE</div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        const layers = {
+            A: document.getElementById('layerA'),
+            B: document.getElementById('layerB')
+        };
+        const overlay = document.getElementById('blackOverlay');
+        const logoWidget = document.getElementById('logoWidget');
+        const tickerContainer = document.getElementById('tickerContainer');
+        const tickerText = document.getElementById('tickerText');
+
+        let activeLayer = 'A';
+
+        ipcRenderer.on('update-media', (event, media) => {
+            console.log('Update media:', media);
+            
+            const nextLayer = activeLayer === 'A' ? 'B' : 'A';
+            const layerDom = layers[nextLayer];
+
+            const oldVideo = layerDom.querySelector('video');
+            if (oldVideo) {
+                oldVideo.pause();
+                oldVideo.src = "";
+                oldVideo.load();
+                oldVideo.remove();
+            }
+            layerDom.innerHTML = '';
+
+            let content;
+            if (media.type === 'video') {
+                content = document.createElement('video');
+                content.src = `file://${media.path}`;
+                content.autoplay = true;
+                content.loop = true;
+                content.className = 'media-content';
+            } else {
+                content = document.createElement('img');
+                content.src = `file://${media.path}`;
+                content.className = 'media-content';
+            }
+
+            layerDom.appendChild(content);
+
+            layers[activeLayer].classList.remove('active');
+            layerDom.classList.add('active');
+            overlay.style.opacity = 0;
+            activeLayer = nextLayer;
+        });
+
+        ipcRenderer.on('stage-control', (event, action, data) => {
+            switch(action) {
+                case 'BLACK':
+                    overlay.style.opacity = 1;
+                    break;
+                case 'FREEZE':
+                    const video = layers[activeLayer].querySelector('video');
+                    if (video) video.paused ? video.play() : video.pause();
+                    break;
+                case 'TOGGLE_LOGO':
+                    logoWidget.classList.toggle('visible');
+                    break;
+                case 'UPDATE_TICKER':
+                    tickerText.innerText = data.text;
+                    tickerContainer.classList.add('visible');
+                    break;
+                case 'HIDE_TICKER':
+                    tickerContainer.classList.remove('visible');
+                    break;
+            }
+        });
+
+        // Heartbeat Sync: Update Dashboard about current time
+        setInterval(() => {
+            const video = layers[activeLayer].querySelector('video');
+            if (video && !video.paused) {
+                ipcRenderer.send('sync-time', video.currentTime);
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
