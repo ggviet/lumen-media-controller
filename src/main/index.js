@@ -40,11 +40,22 @@ function attachPanicInputInterceptor(win, windowRole = 'operator') {
     if (input.type !== 'keyDown') return;
     const code = input.code || '';
     const key = input.key || '';
+    const shift = !!input.shiftKey;
 
-    // Always-active emergency bypass keys (work even when typing or on Stage window)
+    // Main process before-input-event ONLY intercepts dedicated hardware/function/numpad panic keys.
+    // Alphanumeric character keys (KeyB, KeyT, KeyP, KeyO, Space, etc., with or without Shift)
+    // must NEVER be intercepted at the main process level to prevent hijacking text entry in forms/textareas.
     let emergencyAction = null;
+    let payload = null;
+
     if (code === 'Escape' || key === 'Escape' || code === 'F4' || code === 'NumpadSubtract') {
       emergencyAction = 'BLACKOUT';
+      payload = { preserveAudio: !shift };
+    } else if (code === 'Numpad5') {
+      emergencyAction = 'AUDIO_PLAY_PAUSE';
+    } else if (code === 'NumpadDecimal') {
+      emergencyAction = 'AUDIO_FADE_OUT';
+      payload = { durationMs: 2500 };
     } else if (code === 'F1' || code === 'Numpad4') {
       emergencyAction = 'SAFE_LOGO';
     } else if (code === 'F2' || code === 'NumpadMultiply') {
@@ -55,19 +66,12 @@ function attachPanicInputInterceptor(win, windowRole = 'operator') {
       emergencyAction = 'GO_LIVE';
     } else if (code === 'NumpadDivide') {
       emergencyAction = 'MUTE';
-    } else if (windowRole === 'stage') {
-      // If Stage window accidentally has OS focus, forward standard operator hotkeys
-      if (code === 'Space' || code === 'NumpadEnter') emergencyAction = 'GO_LIVE';
-      else if (code === 'KeyB' || code === 'NumpadSubtract') emergencyAction = 'BLACKOUT';
-      else if (code === 'KeyF' || code === 'NumpadMultiply') emergencyAction = 'FREEZE';
-      else if (code === 'KeyL' || code === 'Numpad4') emergencyAction = 'SAFE_LOGO';
-      else if (code === 'KeyT' || code === 'NumpadAdd') emergencyAction = 'FTB';
-      else if (code === 'KeyM' || code === 'NumpadDivide') emergencyAction = 'MUTE';
     }
 
     if (emergencyAction && operatorWindow && !operatorWindow.isDestroyed()) {
       operatorWindow.webContents.send('panic-shortcut-triggered', {
         action: emergencyAction,
+        payload,
         code,
         key,
         source: windowRole,
@@ -455,7 +459,8 @@ ipcMain.handle('open-file-dialog', async (event, options) => {
   const result = await dialog.showOpenDialog(operatorWindow, options || {
     properties: ['openFile', 'multiSelections'],
     filters: [
-      { name: 'Media Files', extensions: ['mp4', 'mov', 'webm', 'mkv', 'png', 'jpg', 'jpeg', 'svg', 'webp'] },
+      { name: 'Media Files', extensions: ['mp4', 'mov', 'webm', 'mkv', 'png', 'jpg', 'jpeg', 'svg', 'webp', 'mp3', 'wav', 'm4a', 'aac', 'flac'] },
+      { name: 'Audio Files', extensions: ['mp3', 'wav', 'm4a', 'aac', 'flac'] },
       { name: 'Videos', extensions: ['mp4', 'mov', 'webm', 'mkv'] },
       { name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'svg', 'webp'] },
       { name: 'All Files', extensions: ['*'] }

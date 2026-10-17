@@ -7,11 +7,40 @@
             if (!target) return;
             pgmCue = { ...target };
             
+            // Check if audio deck is currently playing or being triggered
+            const isAudioActive = typeof operatorAudioDeck !== 'undefined' && operatorAudioDeck && (!operatorAudioDeck.paused && !operatorAudioDeck.ended);
+            const isAudioCue = target.type === 'audio';
+            const hasPairedAudio = Boolean(target.pairedAudioPath);
+
+            if (isAudioCue) {
+                if (typeof loadTrackToAudioDeck === 'function') {
+                    loadTrackToAudioDeck(target, true);
+                } else if (typeof playAudioDeck === 'function') {
+                    playAudioDeck();
+                }
+            } else if (hasPairedAudio) {
+                if (typeof loadTrackToAudioDeck === 'function') {
+                    loadTrackToAudioDeck(target.pairedAudioPath, true);
+                }
+            }
+
+            const isAudioPlaying = isAudioActive ||
+                (typeof isAudioDeckPlaying !== 'undefined' && (typeof isAudioDeckPlaying === 'function' ? isAudioDeckPlaying() : !!isAudioDeckPlaying));
+
+            const hasIndependentAudioTrack = isAudioCue || hasPairedAudio || isAudioPlaying;
+
+            const stageMediaPayload = isAudioCue ? {
+                ...pgmCue,
+                isAudioFallback: true,
+                path: typeof resolveOperatorAssetDir === 'function' ? path.join(resolveOperatorAssetDir(), 'sample_keyvisual.svg') : 'sample_keyvisual.svg'
+            } : pgmCue;
+
             // Send IPC to Stage Window
             ipcRenderer.send('go-live', {
-                media: pgmCue,
+                media: stageMediaPayload,
                 transition: currentTransition,
-                scaling: currentScaling
+                scaling: currentScaling,
+                hasIndependentAudioTrack: !!hasIndependentAudioTrack
             });
 
             // Instantly clear Blackout & FTB UI toggles
@@ -82,6 +111,17 @@
                         const p = newEl.play();
                         if (p && typeof p.catch === 'function') p.catch(() => {});
                     }
+                } else if (pgmCue.type === 'audio') {
+                    newEl = document.createElement('img');
+                    const kvSrc = typeof resolveOperatorAssetDir === 'function' ? toMediaUrl(path.join(resolveOperatorAssetDir(), 'sample_keyvisual.svg')) : '../../../assets/sample_keyvisual.svg';
+                    newEl.src = kvSrc;
+                    newEl.className = 'stage-media-element';
+                    newEl.style.objectFit = currentScaling;
+                    const dur = pgmCue.duration || 0;
+                    if (typeof formatTime === 'function') {
+                        pgmElapsed.innerText = formatTime(0);
+                        pgmRemaining.innerText = formatTime(dur);
+                    }
                 } else {
                     newEl = document.createElement('img');
                     newEl.src = mediaUrl;
@@ -146,6 +186,18 @@
                         if (p && typeof p.catch === 'function') p.catch(() => {});
                     }
                     pgmContainer.appendChild(vid);
+                } else if (pgmCue.type === 'audio') {
+                    const img = document.createElement('img');
+                    const kvSrc = typeof resolveOperatorAssetDir === 'function' ? toMediaUrl(path.join(resolveOperatorAssetDir(), 'sample_keyvisual.svg')) : '../../../assets/sample_keyvisual.svg';
+                    img.src = kvSrc;
+                    img.className = 'stage-media-element';
+                    img.style.objectFit = currentScaling;
+                    pgmContainer.appendChild(img);
+                    const dur = pgmCue.duration || 0;
+                    if (typeof formatTime === 'function') {
+                        pgmElapsed.innerText = formatTime(0);
+                        pgmRemaining.innerText = formatTime(dur);
+                    }
                 } else {
                     const img = document.createElement('img');
                     img.src = typeof toMediaUrl === 'function' ? toMediaUrl(pgmCue.path) : (pgmCue.path && pgmCue.path.startsWith('file://') ? pgmCue.path : `file://${pgmCue.path}`);

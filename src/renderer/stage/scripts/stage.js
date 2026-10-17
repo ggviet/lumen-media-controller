@@ -264,7 +264,7 @@
         // GO LIVE Handler with Dual-Deck Crossfade & Pre-Roll
         ipcRenderer.on('stage-go-live', async (event, payload) => {
             console.log('Stage GO LIVE received:', payload);
-            const { media, transition = 'normal', scaling = scalingMode } = payload;
+            const { media, transition = 'normal', scaling = scalingMode, hasIndependentAudioTrack = false } = (payload || {});
             if (!media || !media.path) return;
 
             // Increment transition token to cancel any stale transitions
@@ -341,9 +341,15 @@
                 mediaElement.playsInline = true;
                 mediaElement.preload = 'auto';
 
-                // Initial volume: 0 for smooth crossfade, or masterVolume for cut
-                mediaElement.volume = fadeDurationMs === 0 ? (isMuted ? 0 : masterVolume) : 0;
-                mediaElement.muted = isMuted;
+                // Initial volume: 0 for smooth crossfade, or masterVolume for cut (muted if independent audio track active)
+                if (hasIndependentAudioTrack) {
+                    mediaElement.volume = 0;
+                    mediaElement.muted = true;
+                    if (mediaElement.dataset) mediaElement.dataset.independentAudioMuted = 'true';
+                } else {
+                    mediaElement.volume = fadeDurationMs === 0 ? (isMuted ? 0 : masterVolume) : 0;
+                    mediaElement.muted = isMuted;
+                }
 
                 if (audioSinkId && typeof mediaElement.setSinkId === 'function') {
                     try {
@@ -374,35 +380,49 @@
                             mediaElement.pause();
                             try { mediaElement.currentTime = mediaElement.duration; } catch (e) {}
                         } else if (endBehavior === 'FADE_TO_BLACK') {
-                            blackoutCover.className = 'active-ftb';
-                            isFTB = true;
-                            if (ftbAnimId) {
-                                cancelAnimationFrame(ftbAnimId);
-                                ftbAnimId = null;
-                            }
-                            // Synchronized FTB audio ramp down over 1.0s
-                            const ftbStart = performance.now();
-                            const startVol = mediaElement.volume;
-                            const ftbRamp = (now) => {
-                                if (!isFTB) return;
-                                const elapsed = now - ftbStart;
-                                const progress = Math.min(1, elapsed / 1000);
-                                if (!isMuted) mediaElement.volume = startVol * (1 - progress);
-                                if (progress < 1) {
-                                    ftbAnimId = requestAnimationFrame(ftbRamp);
-                                } else {
+                            if (hasIndependentAudioTrack) {
+                                safeLogoLayer.classList.add('active');
+                                isSafeLogo = true;
+                                mediaElement.pause();
+                                ipcRenderer.send('stage-status', {
+                                    event: 'media-ended',
+                                    id: media.id,
+                                    cueId: media.id,
+                                    endBehavior: 'FADE_TO_BLACK',
+                                    isFTB: false,
+                                    isSafeLogo: true
+                                });
+                            } else {
+                                blackoutCover.className = 'active-ftb';
+                                isFTB = true;
+                                if (ftbAnimId) {
+                                    cancelAnimationFrame(ftbAnimId);
                                     ftbAnimId = null;
-                                    mediaElement.pause();
                                 }
-                            };
-                            ftbAnimId = requestAnimationFrame(ftbRamp);
-                            ipcRenderer.send('stage-status', {
-                                event: 'media-ended',
-                                id: media.id,
-                                cueId: media.id,
-                                endBehavior: 'FADE_TO_BLACK',
-                                isFTB: true
-                            });
+                                // Synchronized FTB audio ramp down over 1.0s
+                                const ftbStart = performance.now();
+                                const startVol = mediaElement.volume;
+                                const ftbRamp = (now) => {
+                                    if (!isFTB) return;
+                                    const elapsed = now - ftbStart;
+                                    const progress = Math.min(1, elapsed / 1000);
+                                    if (!isMuted) mediaElement.volume = startVol * (1 - progress);
+                                    if (progress < 1) {
+                                        ftbAnimId = requestAnimationFrame(ftbRamp);
+                                    } else {
+                                        ftbAnimId = null;
+                                        mediaElement.pause();
+                                    }
+                                };
+                                ftbAnimId = requestAnimationFrame(ftbRamp);
+                                ipcRenderer.send('stage-status', {
+                                    event: 'media-ended',
+                                    id: media.id,
+                                    cueId: media.id,
+                                    endBehavior: 'FADE_TO_BLACK',
+                                    isFTB: true
+                                });
+                            }
                         } else if (endBehavior === 'AUTO_NEXT') {
                             mediaElement.pause();
                             ipcRenderer.send('stage-status', {
@@ -437,9 +457,14 @@
                 }
 
             } else {
-                // Image or SVG
+                // Image or SVG or Audio Key Visual Fallback
                 mediaElement = document.createElement('img');
-                mediaElement.src = toMediaUrl(media.path);
+                const isAudio = media.type === 'audio' || media.isAudioFallback;
+                let imgSrc = toMediaUrl(media.path);
+                if (isAudio && (!imgSrc || !/\.(png|jpe?g|svg|webp)$/i.test(media.path))) {
+                    imgSrc = safeLogoImg && safeLogoImg.src ? safeLogoImg.src : '../../../assets/sample_keyvisual.svg';
+                }
+                mediaElement.src = imgSrc;
                 mediaElement.className = 'stage-media-element';
                 mediaElement.style.objectFit = scalingMode;
                 incomingDeck.appendChild(mediaElement);
@@ -472,22 +497,24 @@
                     const targetInVol = isMuted ? 0 : masterVolume;
                     const startOutVol = targetVol * initialOutRatio;
 
-                    if (!isMuted) {
+                    if (!isMuted && !hasIndependentAudioTrack) {
                         if (incomingVideo) incomingVideo.volume = targetInVol * progress;
                         if (outgoingVideo) outgoingVideo.volume = startOutVol * (1 - progress);
+                    } else if (hasIndependentAudioTrack && outgoingVideo) {
+                        outgoingVideo.volume = startOutVol * (1 - progress);
                     }
 
                     if (progress < 1) {
                         audioCrossfadeAnimId = requestAnimationFrame(stepAudioCrossfade);
                     } else {
                         audioCrossfadeAnimId = null;
-                        if (incomingVideo && !isMuted) incomingVideo.volume = targetInVol;
+                        if (incomingVideo && !isMuted && !hasIndependentAudioTrack) incomingVideo.volume = targetInVol;
                         if (outgoingVideo) outgoingVideo.volume = 0;
                     }
                 };
                 audioCrossfadeAnimId = requestAnimationFrame(stepAudioCrossfade);
             } else {
-                if (incomingVideo && !isMuted) incomingVideo.volume = masterVolume;
+                if (incomingVideo && !isMuted && !hasIndependentAudioTrack) incomingVideo.volume = masterVolume;
                 if (outgoingVideo) outgoingVideo.volume = 0;
             }
 
@@ -570,7 +597,9 @@
                     } else {
                         blackoutCover.className = '';
                         if (activeVideo) {
-                            activeVideo.volume = isMuted ? 0 : masterVolume;
+                            if (!activeVideo.dataset || !activeVideo.dataset.independentAudioMuted) {
+                                activeVideo.volume = isMuted ? 0 : masterVolume;
+                            }
                             if (!isFrozen && !isSafeLogo) {
                                 activeVideo.play().catch(() => {});
                             }
@@ -621,12 +650,16 @@
                                 if (isFTB || isBlackout) return;
                                 const progress = Math.min(1, Math.max(0, (now - startTime) / 1000));
                                 const targetVol = isMuted ? 0 : masterVolume;
-                                activeVideo.volume = targetVol * progress;
+                                if (!activeVideo.dataset || !activeVideo.dataset.independentAudioMuted) {
+                                    activeVideo.volume = targetVol * progress;
+                                }
                                 if (progress < 1) {
                                     ftbAnimId = requestAnimationFrame(stepFtbUp);
                                 } else {
                                     ftbAnimId = null;
-                                    activeVideo.volume = targetVol;
+                                    if (!activeVideo.dataset || !activeVideo.dataset.independentAudioMuted) {
+                                        activeVideo.volume = targetVol;
+                                    }
                                 }
                             };
                             ftbAnimId = requestAnimationFrame(stepFtbUp);
@@ -714,6 +747,7 @@
                         if (!audioCrossfadeAnimId) {
                             if (!ftbAnimId && !isBlackout && !isFTB) {
                                 document.querySelectorAll('.media-deck video').forEach(v => {
+                                    if (v.dataset && v.dataset.independentAudioMuted === 'true') return;
                                     if (!isMuted) v.volume = masterVolume;
                                 });
                             }
@@ -724,6 +758,10 @@
                 case 'SET_MUTE':
                     isMuted = !!data.muted;
                     document.querySelectorAll('.media-deck video').forEach(v => {
+                        if (v.dataset && v.dataset.independentAudioMuted) {
+                            v.muted = true;
+                            return;
+                        }
                         v.muted = isMuted;
                     });
                     break;

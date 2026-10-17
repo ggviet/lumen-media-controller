@@ -9,6 +9,23 @@
     <link rel="stylesheet" href="styles/layout.css">
     <link rel="stylesheet" href="styles/monitors.css">
     <link rel="stylesheet" href="styles/controls.css">
+    <style>
+        .badge-fmt-mp3 { background: rgba(6, 182, 212, 0.2); color: #00e5ff; border: 1px solid rgba(0, 229, 255, 0.4); }
+        .badge-fmt-wav { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+        .badge-fmt-m4a { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
+        .badge-fmt-aac { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .badge-fmt-flac { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+        .audio-deck-badge { font-size: 9px; font-weight: 800; padding: 1px 5px; border-radius: 3px; font-family: 'JetBrains Mono', monospace; }
+        .audio-deck-badge.standby { background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.4); }
+        .audio-deck-badge.live { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; animation: livePulse 1.5s infinite; }
+        @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .audio-scrubber-slider { -webkit-appearance: none; appearance: none; height: 5px; background: #1e293b; border-radius: 3px; outline: none; cursor: pointer; }
+        .audio-scrubber-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-cyan); cursor: pointer; box-shadow: 0 0 6px rgba(0, 229, 255, 0.6); }
+        .btn-audio-play.playing { background: var(--accent-cyan); color: #000; font-weight: 800; }
+        .btn-sync.active { background: rgba(6, 182, 212, 0.2); color: var(--accent-cyan); border-color: rgba(6, 182, 212, 0.5); }
+        .btn-fade-out:active { background: rgba(245, 158, 11, 0.3); }
+        .btn-audio-cue.active { background: rgba(16, 185, 129, 0.2); color: var(--pvw-green); border-color: rgba(16, 185, 129, 0.5); }
+    </style>
 </head>
 <body>
 
@@ -185,6 +202,58 @@
         <!-- Column 3: Audio, Overlays & Settings -->
         <aside class="col-settings">
             
+            <!-- Dedicated Audio / BGM Deck Engine -->
+            <div class="settings-block audio-deck-block" id="audioDeckBlock">
+                <div class="block-title">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span style="color:var(--accent-cyan); font-weight:800; font-size:12px; letter-spacing:0.04em;">AUDIO / BGM DECK</span>
+                        <span id="audioDeckLiveBadge" class="audio-deck-badge standby">STANDBY</span>
+                    </div>
+                    <div style="display:flex; gap:4px;">
+                        <button id="btnAudioSyncLive" class="btn-small btn-sync active" title="Tự động phát đồng thời khi nhấn GO LIVE">🔗 Sync: ON</button>
+                        <button id="btnLoadAudioDeckFile" class="btn-small" title="Nạp bài nhạc mới (+ Load BGM)">+ Load</button>
+                    </div>
+                </div>
+
+                <!-- Active Track Info & Format -->
+                <div class="audio-deck-track-info" style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+                    <span id="audioDeckFmtBadge" class="badge-fmt badge-fmt-mp3">MP3</span>
+                    <div id="audioDeckTrackTitle" class="audio-deck-title" title="Chưa nạp bài nhạc" style="font-size:11px; font-weight:700; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1;">NO TRACK LOADED</div>
+                </div>
+
+                <!-- Interactive Waveform Display (HTML5 Canvas) -->
+                <div class="waveform-container" id="waveformContainer" style="position:relative; width:100%; height:42px; background:#0d1117; border-radius:4px; overflow:hidden; margin-bottom:6px; cursor:pointer;" title="Click hoặc kéo để tua nhạc">
+                    <canvas id="audioWaveformCanvas" width="280" height="42" style="width:100%; height:100%; display:block;"></canvas>
+                    <div id="waveformPlayhead" class="waveform-playhead" style="position:absolute; top:0; bottom:0; width:2px; background:#fff; display:none; pointer-events:none; box-shadow:0 0 4px #fff;"></div>
+                </div>
+
+                <!-- Broadcast Timecode & Seekbar -->
+                <div class="audio-time-row" style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+                    <span id="audioDeckElapsed" class="audio-timecode" style="font-family:'JetBrains Mono', Consolas, monospace; font-size:11px; font-weight:700; color:var(--text-main); min-width:38px;">00:00</span>
+                    <input type="range" id="audioDeckScrubber" class="audio-scrubber-slider" min="0" max="1000" value="0" style="flex:1;">
+                    <span id="audioDeckRemaining" class="audio-timecode remaining" style="font-family:'JetBrains Mono', Consolas, monospace; font-size:11px; font-weight:700; color:var(--accent-cyan); min-width:44px; text-align:right;">-00:00</span>
+                </div>
+
+                <!-- Transport Controls Row -->
+                <div class="audio-transport-row" style="display:flex; align-items:center; justify-content:space-between; gap:4px; flex-wrap:wrap;">
+                    <button id="btnAudioDeckPlayPause" class="btn-small btn-audio-play" title="Phát / Tạm dừng (Hotkey: Shift+Space / P / Numpad5)">▶ Play</button>
+                    <button id="btnAudioDeckStop" class="btn-small" title="Dừng và về đầu bài">⏹ Stop</button>
+                    <button id="btnAudioDeckLoop" class="btn-small" title="Lặp lại bài nhạc">🔁 Loop</button>
+                    <button id="btnAudioDeckFadeOut" class="btn-small btn-fade-out" title="Hạ âm thanh từ từ 2.5s (Shift+T / Numpad.)">Fade 2.5s</button>
+                    <button id="btnCueAudioDeck" class="btn-small btn-audio-cue" title="Nghe trước trên tai nghe (PFL)">🎧 Cue: OFF</button>
+                    
+                    <!-- Dedicated Stereo Mini VU Meter -->
+                    <div class="audio-deck-vu" style="display:flex; gap:2px; align-items:center; height:18px;">
+                        <div class="vu-bar mini" style="width:4px; height:18px; background:#1e293b; border-radius:1px; overflow:hidden; position:relative;"><div class="vu-fill" id="audioDeckVuL" style="position:absolute; bottom:0; width:100%; height:0%; background:var(--accent-cyan); transition:height 0.05s ease;"></div></div>
+                        <div class="vu-bar mini" style="width:4px; height:18px; background:#1e293b; border-radius:1px; overflow:hidden; position:relative;"><div class="vu-fill" id="audioDeckVuR" style="position:absolute; bottom:0; width:100%; height:0%; background:var(--accent-cyan); transition:height 0.05s ease;"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hidden Operator Audio Elements -->
+            <audio id="operatorAudioDeck" preload="auto" playsinline style="display:none;"></audio>
+            <audio id="operatorCuePlayer" preload="auto" playsinline style="display:none;"></audio>
+
             <!-- Master Audio Console -->
             <div class="settings-block">
                 <div class="block-title">
@@ -273,6 +342,14 @@
                     <div class="hotkey-item">
                         <span>MUTE MASTER</span>
                         <span class="kbd-key">M</span>
+                    </div>
+                    <div class="hotkey-item">
+                        <span>AUDIO PLAY/PAUSE</span>
+                        <span class="kbd-key">SHIFT+SPACE / P / NUM5</span>
+                    </div>
+                    <div class="hotkey-item">
+                        <span>AUDIO FADE OUT</span>
+                        <span class="kbd-key">SHIFT+T / NUM.</span>
                     </div>
                     <div class="hotkey-item">
                         <span>DELETE CUE</span>

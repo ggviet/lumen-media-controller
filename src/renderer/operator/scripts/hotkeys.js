@@ -48,6 +48,9 @@
             switch (payload.action) {
                 case 'BLACKOUT':
                     btnBlackout.click();
+                    if (payload && payload.preserveAudio === false) {
+                        if (typeof stopAudioDeck === 'function') stopAudioDeck();
+                    }
                     break;
                 case 'FREEZE':
                     btnFreeze.click();
@@ -64,6 +67,16 @@
                 case 'MUTE':
                     btnMuteMaster.click();
                     break;
+                case 'AUDIO_PLAY_PAUSE':
+                    if (typeof toggleAudioDeckPlayPause === 'function') {
+                        toggleAudioDeckPlayPause();
+                    }
+                    break;
+                case 'AUDIO_FADE_OUT':
+                    if (typeof startAudioDeckFadeOut === 'function') {
+                        startAudioDeckFadeOut((payload && payload.durationMs) ? payload.durationMs : 2500);
+                    }
+                    break;
             }
         });
 
@@ -71,8 +84,9 @@
         // Focus-Independent Panic Hotkeys & Tactile Shortcuts
         window.addEventListener('keydown', (e) => {
             const tagName = (e.target && e.target.tagName) ? e.target.tagName.toUpperCase() : '';
-            const isFormInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(tagName);
-            const isTextEntry = ['INPUT', 'TEXTAREA'].includes(tagName);
+            const isContentEditable = !!(e.target && (e.target.isContentEditable || (typeof e.target.getAttribute === 'function' && e.target.getAttribute('contenteditable') === 'true')));
+            const isFormInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(tagName) || isContentEditable;
+            const isTextEntry = ['INPUT', 'TEXTAREA'].includes(tagName) || isContentEditable;
             const code = e.code || '';
             const key = e.key || '';
 
@@ -85,26 +99,49 @@
                 code === 'F4' || key === 'F4' ||
                 code === 'NumpadSubtract' || code === 'NumpadMultiply' ||
                 code === 'NumpadAdd' || code === 'NumpadDivide' || code === 'NumpadEnter' ||
-                code === 'Numpad4' ||
-                (e.location === 3 && ['-', '*', '+', '/', 'Enter', '4'].includes(key))
+                code === 'Numpad4' || code === 'Numpad5' || code === 'NumpadDecimal' ||
+                (e.location === 3 && ['-', '*', '+', '/', 'Enter', '4', '5', '.', ','].includes(key))
             );
 
-            // If inside a SELECT dropdown, single-letter panic hotkeys (B, F, L, T, M, Space) also take priority
+            // If inside a SELECT dropdown, single-letter panic hotkeys also take priority
             const isSelectPriorityKey = (
                 tagName === 'SELECT' &&
-                ['Space', 'KeyB', 'KeyF', 'KeyL', 'KeyT', 'KeyM'].includes(code)
+                ['Space', 'KeyB', 'KeyF', 'KeyL', 'KeyT', 'KeyM', 'KeyP', 'KeyO', 'Numpad5', 'NumpadDecimal'].includes(code)
             );
 
-            if (isFormInput) {
+            if (isTextEntry) {
+                // When isTextEntry is true (INPUT, TEXTAREA, or isContentEditable), ALL typing
+                // (letters, numbers, space, with or without Shift) MUST be allowed to type normally
+                // without e.preventDefault(), without blur(), and without triggering hotkeys!
+                if (!isGlobalEmergencyKey) {
+                    return;
+                }
+                if (e.target && typeof e.target.blur === 'function') {
+                    e.target.blur();
+                }
+            } else if (tagName === 'SELECT') {
                 if (isGlobalEmergencyKey || isSelectPriorityKey) {
                     if (e.target && typeof e.target.blur === 'function') {
                         e.target.blur();
                     }
-                } else if (isTextEntry) {
-                    return;
                 } else {
                     return;
                 }
+            }
+
+            // Tactile Audio Shortcuts (Highest precedence)
+            // 1. Audio Play / Pause: Shift+Space / Numpad5 / Shift+KeyP / KeyP
+            if ((e.shiftKey && code === 'Space') || (e.shiftKey && code === 'KeyP') || code === 'KeyP' || code === 'Numpad5' || (e.location === 3 && key === '5')) {
+                e.preventDefault();
+                if (typeof toggleAudioDeckPlayPause === 'function') toggleAudioDeckPlayPause();
+                return;
+            }
+
+            // 2. Audio Fade-Out: Shift+T / Numpad. / Shift+KeyO / KeyO
+            if ((e.shiftKey && (code === 'KeyT' || key === 'T' || key === 't')) || (e.shiftKey && code === 'KeyO') || code === 'NumpadDecimal' || code === 'KeyO' || (e.location === 3 && (key === '.' || key === ','))) {
+                e.preventDefault();
+                if (typeof startAudioDeckFadeOut === 'function') startAudioDeckFadeOut(2500);
+                return;
             }
 
             // Rundown card reordering shortcuts
@@ -131,6 +168,9 @@
                 case 'NumpadSubtract':
                     e.preventDefault();
                     btnBlackout.click();
+                    if (e.shiftKey && typeof stopAudioDeck === 'function') {
+                        stopAudioDeck();
+                    }
                     break;
                 case 'KeyF':
                 case 'F2':
@@ -176,6 +216,8 @@
                     else if (e.location === 3 && key === '+') { e.preventDefault(); btnFTB.click(); }
                     else if (e.location === 3 && key === '/') { e.preventDefault(); btnMuteMaster.click(); }
                     else if (e.location === 3 && key === '4') { e.preventDefault(); btnSafeLogo.click(); }
+                    else if (e.location === 3 && key === '5') { e.preventDefault(); if (typeof toggleAudioDeckPlayPause === 'function') toggleAudioDeckPlayPause(); }
+                    else if (e.location === 3 && (key === '.' || key === ',')) { e.preventDefault(); if (typeof startAudioDeckFadeOut === 'function') startAudioDeckFadeOut(2500); }
                     break;
             }
         });
