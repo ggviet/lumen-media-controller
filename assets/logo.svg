@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#38bdf8;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  <rect width="400" height="400" rx="40" fill="#0d0e12"/>
+  <circle cx="200" cy="180" r="110" fill="none" stroke="url(#grad1)" stroke-width="12" filter="url(#glow)"/>
+  <polygon points="175,130 255,180 175,230" fill="url(#grad1)" filter="url(#glow)"/>
+  <text x="200" y="340" font-family="'Outfit', 'Segoe UI', sans-serif" font-size="36" font-weight="800" text-anchor="middle" fill="#ffffff" letter-spacing="4">LUMEN</text>
+  <text x="200" y="370" font-family="'Outfit', 'Segoe UI', sans-serif" font-size="14" font-weight="600" text-anchor="middle" fill="#38bdf8" letter-spacing="2">EVENT CONTROLLER</text>
+</svg>

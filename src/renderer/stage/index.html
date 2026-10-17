@@ -3,95 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LUMEN - Stage Screen</title>
+    <title>LUMEN - Stage Output (Live LED / Projector)</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none !important; /* CRITICAL: Never show mouse cursor on Stage */
+            user-select: none;
+        }
+
         body {
-            background-color: black;
-            color: white;
+            background-color: #000000;
+            color: #ffffff;
             width: 100vw;
             height: 100vh;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        #mediaContainer {
+        #stageContainer {
             position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: #000000;
+            overflow: hidden;
+        }
+
+        /* Dual-Deck Layers (Player A & Player B) */
+        .media-deck {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .media-layer {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: #000000;
             opacity: 0;
             transition: opacity 0.8s ease-in-out;
-            background: black;
-        }
-
-        .media-layer.active {
-            opacity: 1;
+            pointer-events: none;
             z-index: 10;
         }
 
-        .media-content {
+        .media-deck.active {
+            opacity: 1;
+            z-index: 20;
+        }
+
+        .media-deck.fade-fast {
+            transition: opacity 0.4s ease-in-out;
+        }
+        .media-deck.fade-normal {
+            transition: opacity 0.8s ease-in-out;
+        }
+        .media-deck.fade-slow {
+            transition: opacity 1.6s ease-in-out;
+        }
+        .media-deck.fade-cut {
+            transition: opacity 0s;
+        }
+
+        .stage-media-element {
             display: block;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Dynamically changed to cover / fill */
+        }
+
+        /* Safe Logo / Key Visual Layer */
+        #safeLogoLayer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000000;
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        #safeLogoLayer.active {
+            opacity: 1;
+        }
+
+        #safeLogoLayer img {
+            max-width: 100%;
+            max-height: 100%;
             object-fit: contain;
         }
 
-        /* Overlays */
-        #brandingLayer {
+        /* Watermark / Logo Overlay */
+        #watermarkOverlay {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 500;
-        }
-
-        .logo-widget {
-            position: absolute;
-            top: 40px; right: 40px;
-            width: 150px;
+            top: 36px;
+            right: 48px;
+            width: 140px;
             opacity: 0;
-            transition: opacity 0.5s;
+            transition: opacity 0.5s ease;
+            z-index: 60;
+            pointer-events: none;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.8));
         }
 
-        .logo-widget.visible { opacity: 0.8; }
+        #watermarkOverlay.visible {
+            opacity: 0.85;
+        }
 
-        .ticker-container {
+        /* Live Ticker Marquee Overlay */
+        #tickerOverlay {
             position: absolute;
-            bottom: 0; left: 0; width: 100%;
-            height: 60px;
-            background: rgba(0, 0, 0, 0.7);
-            border-top: 2px solid #3b82f6;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 64px;
+            background: linear-gradient(180deg, rgba(15,23,42,0.85) 0%, rgba(2,6,23,0.95) 100%);
+            border-top: 2px solid #38bdf8;
+            box-shadow: 0 -8px 24px rgba(0,0,0,0.6);
             display: flex;
             align-items: center;
             overflow: hidden;
             opacity: 0;
-            transition: transform 0.5s, opacity 0.5s;
             transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+            z-index: 70;
+            pointer-events: none;
         }
 
-        .ticker-container.visible { opacity: 1; transform: translateY(0); }
+        #tickerOverlay.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .ticker-badge {
+            background: #ef4444;
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            padding: 8px 18px;
+            margin-left: 20px;
+            border-radius: 4px;
+            flex-shrink: 0;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
+        }
+
+        .ticker-track {
+            flex-grow: 1;
+            overflow: hidden;
+            white-space: nowrap;
+        }
 
         .ticker-text {
-            white-space: nowrap;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: white;
+            display: inline-block;
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: #ffffff;
             padding-left: 100%;
-            animation: marquee 20s linear infinite;
+            animation: marquee 24s linear infinite;
         }
 
         @keyframes marquee {
@@ -99,127 +177,333 @@
             100% { transform: translateX(-100%); }
         }
 
-        .black-overlay {
+        /* Blackout & Fade To Black (FTB) Overlays */
+        #blackoutCover {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: black;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
             opacity: 0;
-            transition: opacity 0.3s ease-in-out;
             pointer-events: none;
-            z-index: 100;
+            z-index: 999;
+            transition: opacity 0.05s ease; /* Fast blackout */
         }
 
-        .status-badge {
+        #blackoutCover.active-blackout {
+            opacity: 1;
+        }
+
+        #blackoutCover.active-ftb {
+            opacity: 1;
+            transition: opacity 1.0s ease-in-out; /* Smooth FTB */
+        }
+
+        /* Freeze Indicator */
+        #freezeBanner {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.5);
-            padding: 5px 15px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            color: #444; /* Semi-invisible in dark */
+            top: 20px;
+            left: 20px;
+            background: rgba(14, 165, 233, 0.2);
+            border: 1px solid rgba(14, 165, 233, 0.4);
+            color: #38bdf8;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            opacity: 0;
+            pointer-events: none;
             z-index: 1000;
+            transition: opacity 0.2s;
+        }
+        #freezeBanner.visible {
+            opacity: 0.6;
         }
     </style>
 </head>
 <body>
-    <div id="layerA" class="media-layer active"></div>
-    <div id="layerB" class="media-layer"></div>
-    
-    <div id="brandingLayer">
-        <div class="logo-widget" id="logoWidget">
-            <svg viewBox="0 0 100 100" width="100" height="100">
-                <circle cx="50" cy="50" r="40" fill="#3b82f6" opacity="0.8"/>
-                <text x="50" y="55" font-size="20" text-anchor="middle" fill="white" font-weight="bold">LUMEN</text>
-            </svg>
-        </div>
-        <div class="ticker-container" id="tickerContainer">
-            <div class="ticker-text" id="tickerText">Chào mừng quý vị đại biểu đến với sự kiện!</div>
-        </div>
-    </div>
+    <div id="stageContainer">
+        <!-- Dual Decks -->
+        <div id="deckA" class="media-deck active"></div>
+        <div id="deckB" class="media-deck"></div>
 
-    <div class="black-overlay" id="blackOverlay"></div>
-    <div class="status-badge">LUMEN LIVE</div>
+        <!-- Safe Logo / Key Visual Layer -->
+        <div id="safeLogoLayer">
+            <img id="safeLogoImg" src="../../assets/sample_keyvisual.svg" alt="Key Visual">
+        </div>
+
+        <!-- Watermark / Logo -->
+        <div id="watermarkOverlay">
+            <img src="../../assets/logo.svg" alt="Event Watermark" style="width: 100%; height: auto;">
+        </div>
+
+        <!-- Ticker Marquee -->
+        <div id="tickerOverlay">
+            <div class="ticker-badge">THÔNG BÁO</div>
+            <div class="ticker-track">
+                <span class="ticker-text" id="tickerContent">Chào mừng quý vị đại biểu đến với sự kiện!</span>
+            </div>
+        </div>
+
+        <!-- Blackout Cover -->
+        <div id="blackoutCover"></div>
+
+        <!-- Subtle Freeze Notice -->
+        <div id="freezeBanner">STAGE FROZEN</div>
+    </div>
 
     <script>
         const { ipcRenderer } = require('electron');
 
-        const layers = {
-            A: document.getElementById('layerA'),
-            B: document.getElementById('layerB')
+        const decks = {
+            A: document.getElementById('deckA'),
+            B: document.getElementById('deckB')
         };
-        const overlay = document.getElementById('blackOverlay');
-        const logoWidget = document.getElementById('logoWidget');
-        const tickerContainer = document.getElementById('tickerContainer');
-        const tickerText = document.getElementById('tickerText');
 
-        let activeLayer = 'A';
+        const blackoutCover = document.getElementById('blackoutCover');
+        const safeLogoLayer = document.getElementById('safeLogoLayer');
+        const safeLogoImg = document.getElementById('safeLogoImg');
+        const watermarkOverlay = document.getElementById('watermarkOverlay');
+        const tickerOverlay = document.getElementById('tickerOverlay');
+        const tickerContent = document.getElementById('tickerContent');
+        const freezeBanner = document.getElementById('freezeBanner');
 
-        ipcRenderer.on('update-media', (event, media) => {
-            console.log('Update media:', media);
-            
-            const nextLayer = activeLayer === 'A' ? 'B' : 'A';
-            const layerDom = layers[nextLayer];
+        let activeDeckKey = 'A';
+        let currentMedia = null;
+        let masterVolume = 1.0;
+        let isMuted = false;
+        let audioSinkId = '';
+        let scalingMode = 'contain';
+        let isBlackout = false;
+        let isFTB = false;
+        let isFrozen = false;
+        let isSafeLogo = false;
 
-            const oldVideo = layerDom.querySelector('video');
-            if (oldVideo) {
-                oldVideo.pause();
-                oldVideo.src = "";
-                oldVideo.load();
-                oldVideo.remove();
+        // Apply transition class
+        function applyTransitionClass(deckEl, durationMode) {
+            deckEl.classList.remove('fade-cut', 'fade-fast', 'fade-normal', 'fade-slow');
+            if (durationMode === 'cut') deckEl.classList.add('fade-cut');
+            else if (durationMode === 'fast') deckEl.classList.add('fade-fast');
+            else if (durationMode === 'slow') deckEl.classList.add('fade-slow');
+            else deckEl.classList.add('fade-normal');
+        }
+
+        // GO LIVE Handler with Dual-Deck Crossfade
+        ipcRenderer.on('stage-go-live', (event, payload) => {
+            console.log('Stage GO LIVE received:', payload);
+            const { media, transition = 'normal', scaling = scalingMode } = payload;
+            if (!media || !media.path) return;
+
+            currentMedia = media;
+            scalingMode = scaling;
+
+            // If blackout or FTB was active, lift it
+            if (isBlackout || isFTB) {
+                blackoutCover.className = '';
+                isBlackout = false;
+                isFTB = false;
             }
-            layerDom.innerHTML = '';
 
-            let content;
+            // If Safe Logo was active, hide it
+            if (isSafeLogo) {
+                safeLogoLayer.classList.remove('active');
+                isSafeLogo = false;
+            }
+
+            // Next deck to load onto
+            const nextDeckKey = activeDeckKey === 'A' ? 'B' : 'A';
+            const incomingDeck = decks[nextDeckKey];
+            const outgoingDeck = decks[activeDeckKey];
+
+            // Setup transition speed
+            applyTransitionClass(incomingDeck, transition);
+            applyTransitionClass(outgoingDeck, transition);
+
+            // Clean up previous elements in incoming deck
+            incomingDeck.innerHTML = '';
+
+            let mediaElement;
             if (media.type === 'video') {
-                content = document.createElement('video');
-                content.src = `file://${media.path}`;
-                content.autoplay = true;
-                content.loop = true;
-                content.className = 'media-content';
+                mediaElement = document.createElement('video');
+                mediaElement.src = `file://${media.path}`;
+                mediaElement.className = 'stage-media-element';
+                mediaElement.style.objectFit = scalingMode;
+                mediaElement.volume = masterVolume;
+                mediaElement.muted = isMuted;
+
+                if (audioSinkId && typeof mediaElement.setSinkId === 'function') {
+                    mediaElement.setSinkId(audioSinkId).catch(err => console.warn('setSinkId failed:', err));
+                }
+
+                // Handle End Behavior
+                const endBehavior = media.endBehavior || 'HOLD_LAST_FRAME';
+                if (endBehavior === 'LOOP') {
+                    mediaElement.loop = true;
+                } else {
+                    mediaElement.loop = false;
+                    mediaElement.onended = () => {
+                        console.log('Video ended with behavior:', endBehavior);
+                        if (endBehavior === 'FADE_TO_BLACK') {
+                            blackoutCover.className = 'active-ftb';
+                            isFTB = true;
+                        } else if (endBehavior === 'AUTO_NEXT') {
+                            ipcRenderer.send('stage-status', { event: 'media-ended', id: media.id });
+                        }
+                        // HOLD_LAST_FRAME naturally pauses on the final frame
+                    };
+                }
+
+                mediaElement.autoplay = true;
+                mediaElement.play().catch(e => console.warn('Video auto-play prevented:', e));
+
             } else {
-                content = document.createElement('img');
-                content.src = `file://${media.path}`;
-                content.className = 'media-content';
+                // Image or SVG
+                mediaElement = document.createElement('img');
+                mediaElement.src = `file://${media.path}`;
+                mediaElement.className = 'stage-media-element';
+                mediaElement.style.objectFit = scalingMode;
             }
 
-            layerDom.appendChild(content);
+            incomingDeck.appendChild(mediaElement);
 
-            layers[activeLayer].classList.remove('active');
-            layerDom.classList.add('active');
-            overlay.style.opacity = 0;
-            activeLayer = nextLayer;
+            // Trigger CSS crossfade
+            requestAnimationFrame(() => {
+                incomingDeck.classList.add('active');
+                outgoingDeck.classList.remove('active');
+
+                // After crossfade completes, stop and cleanup outgoing deck
+                const fadeDurationMs = transition === 'cut' ? 0 : (transition === 'fast' ? 400 : (transition === 'slow' ? 1600 : 800));
+                setTimeout(() => {
+                    const oldVideo = outgoingDeck.querySelector('video');
+                    if (oldVideo) {
+                        oldVideo.pause();
+                        oldVideo.src = '';
+                        oldVideo.load();
+                    }
+                    outgoingDeck.innerHTML = '';
+                }, fadeDurationMs + 100);
+
+                activeDeckKey = nextDeckKey;
+                isFrozen = false;
+                freezeBanner.classList.remove('visible');
+            });
         });
 
+        // Stage Control Handler
         ipcRenderer.on('stage-control', (event, action, data) => {
+            console.log('Stage control action:', action, data);
+            const activeVideo = decks[activeDeckKey].querySelector('video');
+
             switch(action) {
-                case 'BLACK':
-                    overlay.style.opacity = 1;
+                case 'BLACKOUT':
+                    isBlackout = !isBlackout;
+                    blackoutCover.className = isBlackout ? 'active-blackout' : '';
+                    if (activeVideo) {
+                        if (isBlackout) {
+                            activeVideo.pause();
+                        } else {
+                            activeVideo.play().catch(() => {});
+                        }
+                    }
                     break;
+
+                case 'FTB': // Fade To Black
+                    isFTB = !isFTB;
+                    blackoutCover.className = isFTB ? 'active-ftb' : '';
+                    if (isFTB && activeVideo) {
+                        setTimeout(() => activeVideo.pause(), 1000);
+                    } else if (!isFTB && activeVideo) {
+                        activeVideo.play().catch(() => {});
+                    }
+                    break;
+
                 case 'FREEZE':
-                    const video = layers[activeLayer].querySelector('video');
-                    if (video) video.paused ? video.play() : video.pause();
+                    isFrozen = !isFrozen;
+                    freezeBanner.classList.toggle('visible', isFrozen);
+                    if (activeVideo) {
+                        if (isFrozen) activeVideo.pause();
+                        else activeVideo.play().catch(() => {});
+                    }
                     break;
+
+                case 'SAFE_LOGO':
+                    isSafeLogo = !isSafeLogo;
+                    if (data && data.logoPath) {
+                        safeLogoImg.src = `file://${data.logoPath}`;
+                    }
+                    safeLogoLayer.classList.toggle('active', isSafeLogo);
+                    if (activeVideo) {
+                        if (isSafeLogo) activeVideo.pause();
+                        else activeVideo.play().catch(() => {});
+                    }
+                    break;
+
                 case 'TOGGLE_LOGO':
-                    logoWidget.classList.toggle('visible');
+                    watermarkOverlay.classList.toggle('visible');
                     break;
+
                 case 'UPDATE_TICKER':
-                    tickerText.innerText = data.text;
-                    tickerContainer.classList.add('visible');
+                    if (data && data.text) {
+                        tickerContent.innerText = data.text;
+                        tickerOverlay.classList.add('visible');
+                    }
                     break;
+
                 case 'HIDE_TICKER':
-                    tickerContainer.classList.remove('visible');
+                    tickerOverlay.classList.remove('visible');
+                    break;
+
+                case 'SET_VOLUME':
+                    if (data && typeof data.volume === 'number') {
+                        masterVolume = Math.max(0, Math.min(1, data.volume));
+                        if (activeVideo) activeVideo.volume = masterVolume;
+                    }
+                    break;
+
+                case 'SET_MUTE':
+                    isMuted = !!data.muted;
+                    if (activeVideo) activeVideo.muted = isMuted;
+                    break;
+
+                case 'SET_SCALING':
+                    if (data && data.scaling) {
+                        scalingMode = data.scaling;
+                        const allMedia = document.querySelectorAll('.stage-media-element');
+                        allMedia.forEach(el => el.style.objectFit = scalingMode);
+                    }
+                    break;
+
+                case 'SET_AUDIO_SINK':
+                    if (data && data.sinkId) {
+                        audioSinkId = data.sinkId;
+                        if (activeVideo && typeof activeVideo.setSinkId === 'function') {
+                            activeVideo.setSinkId(audioSinkId).catch(err => console.warn(err));
+                        }
+                    }
                     break;
             }
         });
 
-        // Heartbeat Sync: Update Dashboard about current time
+        // Stage Status Heartbeat (Sends progress & state back to Operator Window)
         setInterval(() => {
-            const video = layers[activeLayer].querySelector('video');
-            if (video && !video.paused) {
-                ipcRenderer.send('sync-time', video.currentTime);
-            }
-        }, 1000);
+            const activeVideo = decks[activeDeckKey].querySelector('video');
+            const status = {
+                activeMedia: currentMedia,
+                hasVideo: !!activeVideo,
+                currentTime: activeVideo ? activeVideo.currentTime : 0,
+                duration: activeVideo ? activeVideo.duration : 0,
+                paused: activeVideo ? activeVideo.paused : false,
+                isBlackout: isBlackout,
+                isFTB: isFTB,
+                isFrozen: isFrozen,
+                isSafeLogo: isSafeLogo,
+                scalingMode: scalingMode,
+                masterVolume: masterVolume,
+                isMuted: isMuted
+            };
+            ipcRenderer.send('stage-status', status);
+        }, 250);
     </script>
 </body>
 </html>

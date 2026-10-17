@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <radialGradient id="cd_bg" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" style="stop-color:#18181b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#09090b;stop-opacity:1" />
+    </radialGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#cd_bg)"/>
+  <circle cx="960" cy="540" r="320" fill="none" stroke="#27272a" stroke-width="14"/>
+  <circle cx="960" cy="540" r="320" fill="none" stroke="url(#gold)" stroke-width="14" stroke-dasharray="1600" stroke-dashoffset="400" stroke-linecap="round"/>
+  <text x="960" y="580" font-family="'Segoe UI', Roboto, sans-serif" font-size="160" font-weight="900" text-anchor="middle" fill="#ffffff" letter-spacing="4">00:30</text>
+  <text x="960" y="660" font-family="'Segoe UI', Roboto, sans-serif" font-size="28" font-weight="700" text-anchor="middle" fill="url(#gold)" letter-spacing="6">COUNTDOWN TO OPENING</text>
+</svg>
