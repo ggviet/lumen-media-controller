@@ -253,7 +253,7 @@
         /* 3-Column Workspace */
         .workspace-grid {
             display: grid;
-            grid-template-columns: 340px 1fr 340px;
+            grid-template-columns: 350px 1fr 340px;
             flex-grow: 1;
             overflow: hidden;
             background: var(--bg-deep);
@@ -266,7 +266,24 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            position: relative;
         }
+
+        .drop-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(56, 189, 248, 0.15);
+            border: 2px dashed var(--accent-blue);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--accent-blue);
+            z-index: 50;
+            pointer-events: none;
+        }
+        .drop-overlay.active { display: flex; }
 
         .panel-header {
             padding: 14px 16px;
@@ -406,8 +423,8 @@
             padding: 12px;
             border-top: 1px solid var(--border-color);
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 6px;
         }
 
         /* Column 2: Dual Viewports (PVW & PGM) */
@@ -513,6 +530,21 @@
             font-size: 0.9rem;
             letter-spacing: 1px;
             text-transform: uppercase;
+        }
+
+        /* Scrubber Bar */
+        .scrubber-wrap {
+            background: rgba(0,0,0,0.9);
+            padding: 6px 14px 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .scrubber-slider {
+            flex-grow: 1;
+            accent-color: var(--pvw-green);
+            cursor: pointer;
+            height: 6px;
         }
 
         .mon-footer {
@@ -765,12 +797,15 @@
     <div class="workspace-grid">
 
         <!-- Column 1: Rundown / Cue Library -->
-        <aside class="col-rundown">
+        <aside class="col-rundown" id="rundownCol">
+            <!-- Drag Over Overlay Hint -->
+            <div class="drop-overlay" id="dropOverlay">📥 Thả File Video/Ảnh vào đây</div>
+
             <div class="panel-header">
                 <span>Rundown (<span id="cueCount">0</span>)</span>
                 <div style="display:flex; gap:6px;">
-                    <button id="btnLoadDemo" class="btn-small" title="Load sample event cues">Load Demo</button>
-                    <button id="btnAddFiles" class="btn-small">+ Add File</button>
+                    <button id="btnLoadDemo" class="btn-small" title="Load sample event cues">Demo</button>
+                    <button id="btnAddFiles" class="btn-small">+ Add</button>
                 </div>
             </div>
 
@@ -779,8 +814,10 @@
             </div>
 
             <div class="rundown-actions">
-                <button id="btnMoveUp" class="btn-small">▲ Move Up</button>
-                <button id="btnMoveDown" class="btn-small">▼ Move Down</button>
+                <button id="btnMoveUp" class="btn-small">▲ Up</button>
+                <button id="btnMoveDown" class="btn-small">▼ Down</button>
+                <button id="btnDeleteCue" class="btn-small" style="color:var(--pgm-red);">✕ Del</button>
+                <button id="btnClearRundown" class="btn-small" style="color:var(--text-dim);">Clear</button>
             </div>
         </aside>
 
@@ -800,9 +837,15 @@
                         <div class="mon-empty-hint">STANDBY / QUEUE EMPTY</div>
                     </div>
 
+                    <!-- Scrubber on Preview -->
+                    <div class="scrubber-wrap">
+                        <input type="range" id="pvwScrubber" class="scrubber-slider" min="0" max="100" value="0">
+                    </div>
+
                     <div class="mon-footer">
-                        <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
                             <button id="btnPvwPlayPause" class="btn-small" style="padding: 2px 8px;">▶ Play</button>
+                            <button id="btnCueAudio" class="btn-small" title="Nghe thử âm thanh qua tai nghe">🎧 Cue: OFF</button>
                             <span id="pvwTimeDisplay">00:00 / 00:00</span>
                         </div>
                         <div style="display:flex; align-items:center; gap:8px;">
@@ -943,6 +986,10 @@
                         <span>MUTE MASTER</span>
                         <span class="kbd-key">M</span>
                     </div>
+                    <div class="hotkey-item">
+                        <span>DELETE CUE</span>
+                        <span class="kbd-key">DEL</span>
+                    </div>
                 </div>
             </div>
 
@@ -964,9 +1011,12 @@
         let currentScaling = 'contain';
         let isMasterMuted = false;
         let watermarkVisible = false;
+        let isCueAudioOn = false;
 
         // Elements
         const rundownList = document.getElementById('rundownList');
+        const rundownCol = document.getElementById('rundownCol');
+        const dropOverlay = document.getElementById('dropOverlay');
         const cueCount = document.getElementById('cueCount');
         const stageDisplaySelect = document.getElementById('stageDisplaySelect');
         const pvwContainer = document.getElementById('pvwContainer');
@@ -975,6 +1025,8 @@
         const pvwEndBehaviorSelect = document.getElementById('pvwEndBehaviorSelect');
         const pvwTimeDisplay = document.getElementById('pvwTimeDisplay');
         const btnPvwPlayPause = document.getElementById('btnPvwPlayPause');
+        const btnCueAudio = document.getElementById('btnCueAudio');
+        const pvwScrubber = document.getElementById('pvwScrubber');
         const pgmContainer = document.getElementById('pgmContainer');
         const pgmCueTitle = document.getElementById('pgmCueTitle');
         const pgmFrame = document.getElementById('pgmFrame');
@@ -1069,7 +1121,7 @@
                 card.className = `cue-card ${idx === selectedIndex ? 'selected-pvw' : ''} ${pgmCue && pgmCue.id === cue.id ? 'active-pgm' : ''}`;
                 
                 let thumbHtml = cue.type === 'video' ? '🎬' : '🖼️';
-                if (cue.path.endsWith('.svg') || cue.path.endsWith('.png') || cue.path.endsWith('.jpg')) {
+                if (cue.path.endsWith('.svg') || cue.path.endsWith('.png') || cue.path.endsWith('.jpg') || cue.path.endsWith('.jpeg')) {
                     thumbHtml = `<img src="file://${cue.path}">`;
                 }
 
@@ -1104,9 +1156,21 @@
             renderRundown();
         }
 
+        // Cleanup previous media to prevent memory leak
+        function cleanupPvw() {
+            const oldVideo = pvwContainer.querySelector('video');
+            if (oldVideo) {
+                oldVideo.pause();
+                oldVideo.src = '';
+                oldVideo.load();
+                oldVideo.remove();
+            }
+            pvwContainer.innerHTML = '';
+        }
+
         // Load into PREVIEW
         function loadPvw(cue) {
-            pvwContainer.innerHTML = '';
+            cleanupPvw();
             pvwCueTitle.innerText = cue.name;
             pvwTypeTag.innerText = cue.type.toUpperCase();
             pvwEndBehaviorSelect.value = cue.endBehavior;
@@ -1117,10 +1181,19 @@
                 video.src = `file://${cue.path}`;
                 video.className = 'stage-media-element';
                 video.style.objectFit = currentScaling;
-                video.muted = true; // Preview muted by default to avoid echo
+                video.muted = !isCueAudioOn;
                 
                 video.ontimeupdate = () => {
                     pvwTimeDisplay.innerText = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
+                    if (video.duration) {
+                        pvwScrubber.value = (video.currentTime / video.duration) * 100;
+                    }
+                };
+
+                pvwScrubber.oninput = () => {
+                    if (video.duration) {
+                        video.currentTime = (pvwScrubber.value / 100) * video.duration;
+                    }
                 };
 
                 btnPvwPlayPause.onclick = () => {
@@ -1140,9 +1213,19 @@
                 img.style.objectFit = currentScaling;
                 pvwContainer.appendChild(img);
                 pvwTimeDisplay.innerText = 'STATIC IMAGE';
+                pvwScrubber.value = 0;
                 btnPvwPlayPause.onclick = null;
             }
         }
+
+        // Cue Audio (Headphone Listen)
+        btnCueAudio.addEventListener('click', () => {
+            isCueAudioOn = !isCueAudioOn;
+            btnCueAudio.innerText = `🎧 Cue: ${isCueAudioOn ? 'ON' : 'OFF'}`;
+            btnCueAudio.style.color = isCueAudioOn ? 'var(--pvw-green)' : 'var(--text-main)';
+            const vid = pvwContainer.querySelector('video');
+            if (vid) vid.muted = !isCueAudioOn;
+        });
 
         pvwEndBehaviorSelect.addEventListener('change', () => {
             if (pvwCue) {
@@ -1151,22 +1234,51 @@
             }
         });
 
-        // Add Files
+        // Add Ingest Helper
+        function ingestFilePath(fp) {
+            const ext = fp.split('.').pop().toLowerCase();
+            const isVid = ['mp4', 'mov', 'webm', 'mkv', 'avi'].includes(ext);
+            const name = fp.split('\\').pop().split('/').pop();
+            rundown.push({
+                id: 'cue_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                name: name,
+                path: fp,
+                type: isVid ? 'video' : 'image',
+                endBehavior: 'HOLD_LAST_FRAME'
+            });
+        }
+
+        // Add Files via File Picker
         document.getElementById('btnAddFiles').addEventListener('click', async () => {
             const filePaths = await ipcRenderer.invoke('open-file-dialog');
             if (filePaths && filePaths.length > 0) {
-                filePaths.forEach(fp => {
-                    const ext = fp.split('.').pop().toLowerCase();
-                    const isVid = ['mp4', 'mov', 'webm', 'mkv'].includes(ext);
-                    const name = fp.split('\\').pop().split('/').pop();
-                    rundown.push({
-                        id: 'cue_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-                        name: name,
-                        path: fp,
-                        type: isVid ? 'video' : 'image',
-                        endBehavior: 'HOLD_LAST_FRAME'
-                    });
-                });
+                filePaths.forEach(fp => ingestFilePath(fp));
+                renderRundown();
+                if (selectedIndex === -1 && rundown.length > 0) selectCue(0);
+            }
+        });
+
+        // Drag & Drop Implementation
+        window.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropOverlay.classList.add('active');
+        });
+
+        window.addEventListener('dragleave', (e) => {
+            if (e.relatedTarget === null) {
+                dropOverlay.classList.remove('active');
+            }
+        });
+
+        window.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropOverlay.classList.remove('active');
+            if (e.dataTransfer && e.dataTransfer.files) {
+                for (const f of e.dataTransfer.files) {
+                    ingestFilePath(f.path);
+                }
                 renderRundown();
                 if (selectedIndex === -1 && rundown.length > 0) selectCue(0);
             }
@@ -1200,6 +1312,38 @@
             ];
             renderRundown();
             selectCue(0);
+        });
+
+        // Delete Cue
+        function deleteSelectedCue() {
+            if (selectedIndex >= 0 && selectedIndex < rundown.length) {
+                rundown.splice(selectedIndex, 1);
+                if (selectedIndex >= rundown.length) selectedIndex = rundown.length - 1;
+                renderRundown();
+                if (selectedIndex >= 0) selectCue(selectedIndex);
+                else {
+                    pvwCue = null;
+                    cleanupPvw();
+                    pvwCueTitle.innerText = 'NO CUE SELECTED';
+                    pvwTypeTag.innerText = 'STANDBY';
+                    document.getElementById('pvwFrame').classList.remove('has-content');
+                }
+            }
+        }
+        document.getElementById('btnDeleteCue').addEventListener('click', deleteSelectedCue);
+
+        // Clear All
+        document.getElementById('btnClearRundown').addEventListener('click', () => {
+            if (confirm('Bạn có chắc muốn xóa sạch toàn bộ kịch bản Rundown?')) {
+                rundown = [];
+                selectedIndex = -1;
+                pvwCue = null;
+                cleanupPvw();
+                pvwCueTitle.innerText = 'NO CUE SELECTED';
+                pvwTypeTag.innerText = 'STANDBY';
+                document.getElementById('pvwFrame').classList.remove('has-content');
+                renderRundown();
+            }
         });
 
         // Move Up / Down
@@ -1257,6 +1401,13 @@
             });
 
             // Mirror into PGM Container on Dashboard
+            const oldVid = pgmContainer.querySelector('video');
+            if (oldVid) {
+                oldVid.pause();
+                oldVid.src = '';
+                oldVid.load();
+                oldVid.remove();
+            }
             pgmContainer.innerHTML = '';
             pgmCueTitle.innerText = pgmCue.name;
             pgmFrame.classList.add('is-live');
@@ -1433,6 +1584,9 @@
                 case 'KeyM':
                 case 'NumpadDivide':
                     btnMuteMaster.click();
+                    break;
+                case 'Delete':
+                    deleteSelectedCue();
                     break;
                 case 'ArrowUp':
                     if (selectedIndex > 0) selectCue(selectedIndex - 1);
