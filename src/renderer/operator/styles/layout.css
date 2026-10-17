@@ -1,0 +1,220 @@
+/* Master Hardware Header */
+        header {
+            height: 64px;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+            flex-shrink: 0;
+            z-index: 100;
+            gap: 16px;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-shrink: 0;
+        }
+
+        .logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-logo-text {
+            font-size: 1.25rem;
+            font-weight: 900;
+            letter-spacing: 0.14em;
+            color: #f8fafc;
+            text-transform: uppercase;
+        }
+
+        .brand-badge {
+            background: rgba(56, 189, 248, 0.08);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            color: var(--accent-blue);
+            font-size: 9px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: var(--radius-micro);
+            letter-spacing: 0.1em;
+            font-family: 'JetBrains Mono', Consolas, monospace;
+        }
+
+        .display-selector-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #080a0f;
+            border: 1px solid var(--border-color);
+            padding: 3px 8px;
+            border-radius: var(--radius-box);
+            font-size: 11px;
+        }
+
+        .display-select {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-size: 11px;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+        }
+        .display-select option {
+            background: #0f1218;
+            color: var(--text-main);
+        }
+
+        .header-center {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-shrink: 0;
+        }
+
+        /* Studio Master Clock (Fixed Monospace Figures, Zero Layout Shift) */
+        .system-clock {
+            font-family: 'JetBrains Mono', 'SF Mono', Consolas, Menlo, Monaco, monospace;
+            font-variant-numeric: tabular-nums lining-nums;
+            font-feature-settings: "tnum" 1, "zero" 1;
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #ffffff;
+            background: #040508;
+            padding: 5px 14px;
+            border-radius: var(--radius-box);
+            border: 1px solid var(--border-color);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 0.04em;
+        }
+
+        .system-clock #clockText {
+            font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+            font-variant-numeric: tabular-nums lining-nums;
+            font-feature-settings: "tnum" 1;
+            display: inline-block;
+            min-width: 82px;
+            text-align: center;
+        }
+
+        .system-clock .date {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            font-weight: 500;
+            letter-spacing: 0.04em;
+        }
+
+        .system-clock .clock-pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--pvw-green);
+            display: inline-block;
+            box-shadow: 0 0 4px var(--pvw-green);
+            animation: clockPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes clockPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.35; }
+        }
+
+        
+
+.workspace-grid {
+            display: grid;
+            grid-template-columns: minmax(290px, 350px) 1fr minmax(280px, 340px);
+            flex-grow: 1;
+            overflow: hidden;
+            background: var(--bg-deep);
+        }
+
+        /* Column 1: Rundown / Cue Library */
+        
+
+/* DPI Scaling & Responsive Breakpoints (1080p, 2K, 4K at 125% - 150% scaling) */
+        @media (max-width: 1440px) {
+            .workspace-grid {
+                grid-template-columns: minmax(280px, 320px) 1fr minmax(270px, 300px);
+            }
+            header {
+                padding: 0 14px;
+            }
+            .btn-live {
+                padding: 0 16px;
+                min-width: 110px;
+                font-size: 0.9rem;
+            }
+            .btn-panic {
+                padding: 0 8px;
+                min-width: 64px;
+                font-size: 10px;
+            }
+            .col-viewports {
+                padding: 10px;
+                gap: 10px;
+            }
+            .dual-screen-grid {
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 1240px) {
+            .workspace-grid {
+                grid-template-columns: 270px 1fr 260px;
+            }
+            .brand-logo-text {
+                font-size: 1.15rem;
+                letter-spacing: 0.1em;
+            }
+            .system-clock {
+                font-size: 1.05rem;
+                padding: 4px 10px;
+            }
+            .trans-controls span, .scaling-selector span {
+                display: none;
+            }
+            .btn-trans {
+                padding: 0 6px;
+                font-size: 10px;
+            }
+        }
+
+        @media (max-height: 850px) {
+            header {
+                height: 54px;
+            }
+            .btn-live, .btn-panic {
+                height: 36px;
+            }
+            .col-viewports {
+                padding: 8px;
+                gap: 8px;
+            }
+            .dual-screen-grid {
+                min-height: 260px;
+                gap: 8px;
+            }
+            .viewport-bottom-ctrls {
+                padding: 6px 10px;
+            }
+            .btn-trans {
+                height: 28px;
+                padding: 0 8px;
+                font-size: 10px;
+            }
+            .mon-bar {
+                height: 32px;
+            }
+            .mon-footer {
+                height: 38px;
+            }
+        }

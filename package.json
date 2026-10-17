@@ -1,22 +1,27 @@
 {
   "name": "lumen",
   "version": "1.0.0",
-  "description": "LUMEN Event Media Controller Prototype",
+  "description": "LUMEN PRO - Zero-Install Standalone Event Media Controller",
   "main": "src/main/index.js",
   "scripts": {
     "start": "electron .",
     "dev": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node tests/run_all.js",
+    "build": "electron-builder --win portable dir",
+    "package": "electron-builder --win portable dir",
+    "dist": "electron-builder --win portable dir"
   },
   "keywords": [
     "event",
     "media",
     "controller",
-    "electron"
+    "electron",
+    "broadcast"
   ],
-  "author": "",
+  "author": "LUMEN Broadcast Systems",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^30.5.1"
+    "electron": "^30.5.1",
+    "electron-builder": "^26.15.3"
   }
 }

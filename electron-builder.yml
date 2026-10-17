@@ -1,0 +1,28 @@
+appId: com.lumen.promediacontroller
+productName: LUMEN PRO
+copyright: Copyright © 2026 LUMEN Broadcast Systems
+directories:
+  output: dist
+  buildResources: assets
+files:
+  - src/**/*
+  - assets/**/*
+  - package.json
+asar: true
+asarUnpack:
+  - assets/**/*
+extraResources:
+  - from: assets
+    to: assets
+win:
+  icon: assets/icon.ico
+  target:
+    - target: portable
+      arch:
+        - x64
+    - target: dir
+      arch:
+        - x64
+portable:
+  artifactName: LUMEN-PRO-Portable.exe
+  requestExecutionLevel: user

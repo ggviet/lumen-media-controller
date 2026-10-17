@@ -4,743 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LUMEN PRO | Event Media Controller</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-deep: #08090b;
-            --bg-surface: #101216;
-            --bg-card: #171920;
-            --bg-hover: #222632;
-            --border-color: #242834;
-            --border-highlight: #3b4252;
-            
-            --pvw-green: #22c55e;
-            --pvw-glow: 0 0 20px rgba(34, 197, 94, 0.4);
-            
-            --pgm-red: #ef4444;
-            --pgm-glow: 0 0 24px rgba(239, 68, 68, 0.5);
-            
-            --accent-cyan: #06b6d4;
-            --accent-blue: #38bdf8;
-            --accent-amber: #f59e0b;
-            --accent-purple: #a855f7;
-            
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --text-dim: #64748b;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Outfit', sans-serif;
-            user-select: none;
-        }
-
-        body {
-            background-color: var(--bg-deep);
-            color: var(--text-main);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        /* Master Header */
-        header {
-            height: 68px;
-            background: var(--bg-surface);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            flex-shrink: 0;
-            z-index: 100;
-        }
-
-        .header-brand {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .logo-wrap {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .brand-logo-text {
-            font-size: 1.5rem;
-            font-weight: 800;
-            letter-spacing: 2px;
-            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .brand-badge {
-            background: rgba(56, 189, 248, 0.15);
-            border: 1px solid rgba(56, 189, 248, 0.35);
-            color: var(--accent-blue);
-            font-size: 0.65rem;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 4px;
-            letter-spacing: 1px;
-        }
-
-        .display-selector-wrap {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-        }
-
-        .display-select {
-            background: transparent;
-            border: none;
-            color: var(--text-main);
-            font-size: 0.8rem;
-            font-weight: 600;
-            outline: none;
-            cursor: pointer;
-        }
-
-        .header-center {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .system-clock {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: var(--text-main);
-            background: #000;
-            padding: 6px 14px;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .system-clock .date {
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            font-weight: 400;
-        }
-
-        /* Panic & Action Center */
-        .action-center {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-live {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: #ffffff;
-            border: none;
-            padding: 0 24px;
-            height: 48px;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 800;
-            letter-spacing: 1.5px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-            transition: all 0.15s ease;
-        }
-
-        .btn-live:hover {
-            box-shadow: 0 0 28px rgba(16, 185, 129, 0.7);
-            transform: translateY(-1px);
-        }
-
-        .btn-live:active {
-            transform: translateY(1px);
-        }
-
-        .btn-live .sub-key {
-            font-size: 0.6rem;
-            opacity: 0.85;
-            font-weight: 600;
-            letter-spacing: 1px;
-        }
-
-        .btn-panic {
-            height: 48px;
-            padding: 0 14px;
-            border-radius: 8px;
-            border: 1px solid transparent;
-            font-weight: 700;
-            font-size: 0.75rem;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.15s ease;
-            gap: 2px;
-        }
-
-        .btn-panic .sub-key {
-            font-size: 0.55rem;
-            opacity: 0.8;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .btn-safe-logo {
-            background: rgba(245, 158, 11, 0.15);
-            border-color: rgba(245, 158, 11, 0.5);
-            color: var(--accent-amber);
-        }
-        .btn-safe-logo.active, .btn-safe-logo:hover {
-            background: var(--accent-amber);
-            color: #000;
-            box-shadow: 0 0 16px rgba(245, 158, 11, 0.6);
-        }
-
-        .btn-freeze {
-            background: rgba(6, 182, 212, 0.15);
-            border-color: rgba(6, 182, 212, 0.5);
-            color: var(--accent-cyan);
-        }
-        .btn-freeze.active, .btn-freeze:hover {
-            background: var(--accent-cyan);
-            color: #000;
-            box-shadow: 0 0 16px rgba(6, 182, 212, 0.6);
-        }
-
-        .btn-ftb {
-            background: rgba(168, 85, 247, 0.15);
-            border-color: rgba(168, 85, 247, 0.5);
-            color: var(--accent-purple);
-        }
-        .btn-ftb.active, .btn-ftb:hover {
-            background: var(--accent-purple);
-            color: #ffffff;
-            box-shadow: 0 0 16px rgba(168, 85, 247, 0.6);
-        }
-
-        .btn-blackout {
-            background: rgba(239, 68, 68, 0.2);
-            border-color: rgba(239, 68, 68, 0.6);
-            color: var(--pgm-red);
-            font-weight: 800;
-        }
-        .btn-blackout.active, .btn-blackout:hover {
-            background: var(--pgm-red);
-            color: #ffffff;
-            box-shadow: 0 0 24px rgba(239, 68, 68, 0.8);
-        }
-
-        /* 3-Column Workspace */
-        .workspace-grid {
-            display: grid;
-            grid-template-columns: 350px 1fr 340px;
-            flex-grow: 1;
-            overflow: hidden;
-            background: var(--bg-deep);
-        }
-
-        /* Column 1: Rundown / Cue Library */
-        .col-rundown {
-            background: var(--bg-surface);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .drop-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(56, 189, 248, 0.15);
-            border: 2px dashed var(--accent-blue);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: var(--accent-blue);
-            z-index: 50;
-            pointer-events: none;
-        }
-        .drop-overlay.active { display: flex; }
-
-        .panel-header {
-            padding: 14px 16px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-        }
-
-        .btn-small {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-        .btn-small:hover {
-            background: var(--bg-hover);
-            border-color: var(--border-highlight);
-        }
-
-        .rundown-list {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .rundown-list::-webkit-scrollbar { width: 5px; }
-        .rundown-list::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-
-        .cue-card {
-            background: var(--bg-card);
-            border: 1.5px solid var(--border-color);
-            border-radius: 8px;
-            padding: 10px;
-            cursor: pointer;
-            display: flex;
-            gap: 12px;
-            transition: all 0.15s ease;
-            position: relative;
-        }
-
-        .cue-card:hover {
-            background: var(--bg-hover);
-            border-color: var(--border-highlight);
-        }
-
-        .cue-card.selected-pvw {
-            border-color: var(--pvw-green);
-            box-shadow: 0 0 12px rgba(34, 197, 94, 0.25);
-            background: rgba(34, 197, 94, 0.05);
-        }
-
-        .cue-card.active-pgm {
-            border-left: 5px solid var(--pgm-red);
-        }
-
-        .cue-thumb {
-            width: 72px;
-            height: 52px;
-            background: #000;
-            border-radius: 4px;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
-            font-size: 1.4rem;
-        }
-
-        .cue-thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .cue-badge-type {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            background: rgba(0,0,0,0.85);
-            color: #fff;
-            font-size: 0.55rem;
-            font-weight: 700;
-            padding: 1px 4px;
-            border-radius: 2px;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .cue-meta {
-            flex-grow: 1;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .cue-title {
-            font-size: 0.82rem;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            color: var(--text-main);
-        }
-
-        .cue-details {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 0.7rem;
-            color: var(--text-dim);
-        }
-
-        .cue-behavior-tag {
-            background: #242938;
-            color: var(--accent-blue);
-            padding: 1px 6px;
-            border-radius: 3px;
-            font-size: 0.65rem;
-            font-weight: 700;
-        }
-
-        .rundown-actions {
-            padding: 12px;
-            border-top: 1px solid var(--border-color);
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 6px;
-        }
-
-        /* Column 2: Dual Viewports (PVW & PGM) */
-        .col-viewports {
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            overflow-y: auto;
-        }
-
-        .dual-screen-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            flex-grow: 1;
-            min-height: 380px;
-        }
-
-        .monitor-frame {
-            background: var(--bg-surface);
-            border-radius: 12px;
-            border: 2px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            position: relative;
-        }
-
-        .monitor-frame.pvw-frame {
-            border-color: #1e3a29;
-        }
-        .monitor-frame.pvw-frame.has-content {
-            border-color: var(--pvw-green);
-            box-shadow: var(--pvw-glow);
-        }
-
-        .monitor-frame.pgm-frame {
-            border-color: #3f1e1e;
-        }
-        .monitor-frame.pgm-frame.is-live {
-            border-color: var(--pgm-red);
-            box-shadow: var(--pgm-glow);
-        }
-
-        .mon-bar {
-            height: 36px;
-            padding: 0 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 0.75rem;
-            font-weight: 700;
-            background: rgba(0,0,0,0.6);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .tally-tag {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            letter-spacing: 1px;
-            font-weight: 800;
-        }
-
-        .tally-pvw {
-            background: rgba(34, 197, 94, 0.15);
-            color: var(--pvw-green);
-            border: 1px solid rgba(34, 197, 94, 0.4);
-        }
-
-        .tally-pgm {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--pgm-red);
-            border: 1px solid rgba(239, 68, 68, 0.5);
-        }
-
-        .mon-body {
-            flex-grow: 1;
-            background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .mon-body video, .mon-body img {
-            max-width: 100%;
-            max-height: 100%;
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .mon-empty-hint {
-            color: #333;
-            font-weight: 700;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        /* Scrubber Bar */
-        .scrubber-wrap {
-            background: rgba(0,0,0,0.9);
-            padding: 6px 14px 2px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .scrubber-slider {
-            flex-grow: 1;
-            accent-color: var(--pvw-green);
-            cursor: pointer;
-            height: 6px;
-        }
-
-        .mon-footer {
-            height: 48px;
-            background: rgba(0,0,0,0.85);
-            border-top: 1px solid rgba(255,255,255,0.05);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 14px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8rem;
-        }
-
-        /* Center Control Hub (Transition & Scaling Controls) */
-        .viewport-bottom-ctrls {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 14px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-        }
-
-        .trans-controls {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .btn-trans {
-            height: 38px;
-            padding: 0 16px;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-card);
-            color: var(--text-main);
-            font-weight: 700;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-        .btn-trans:hover {
-            background: var(--bg-hover);
-            border-color: var(--border-highlight);
-        }
-        .btn-trans.active {
-            background: var(--accent-blue);
-            color: #000;
-            border-color: var(--accent-blue);
-        }
-
-        .scaling-selector {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            font-weight: 600;
-        }
-
-        /* Column 3: Audio, Overlays & Settings */
-        .col-settings {
-            background: var(--bg-surface);
-            border-left: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-        }
-
-        .settings-block {
-            padding: 16px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .block-title {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        /* Audio Controls */
-        .audio-row {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .slider-wrap {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .slider-wrap input[type=range] {
-            flex-grow: 1;
-            accent-color: var(--accent-cyan);
-            cursor: pointer;
-        }
-
-        .vu-meter-wrap {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            background: #050505;
-            padding: 6px;
-            border-radius: 4px;
-            border: 1px solid #1a1a1a;
-        }
-
-        .vu-bar {
-            height: 8px;
-            background: #111;
-            border-radius: 2px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .vu-fill {
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #10b981 0%, #10b981 65%, #f59e0b 85%, #ef4444 100%);
-            transition: width 0.1s ease-out;
-        }
-
-        /* Ticker Input */
-        .ticker-input-area {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .ticker-text-box {
-            width: 100%;
-            height: 64px;
-            background: #000;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            color: var(--text-main);
-            padding: 8px;
-            font-size: 0.8rem;
-            resize: none;
-            outline: none;
-        }
-        .ticker-text-box:focus {
-            border-color: var(--accent-blue);
-        }
-
-        .ticker-btns {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        /* Quick Hotkey Cheat Sheet */
-        .hotkey-list {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            font-size: 0.75rem;
-            color: var(--text-dim);
-        }
-
-        .hotkey-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 4px 6px;
-            background: var(--bg-card);
-            border-radius: 4px;
-        }
-
-        .kbd-key {
-            background: #000;
-            color: #fff;
-            padding: 2px 6px;
-            border-radius: 3px;
-            border: 1px solid #333;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            font-weight: 700;
-        }
-    </style>
+    <!-- Modular Clean Architecture Stylesheets -->
+    <link rel="stylesheet" href="styles/theme.css">
+    <link rel="stylesheet" href="styles/layout.css">
+    <link rel="stylesheet" href="styles/monitors.css">
+    <link rel="stylesheet" href="styles/controls.css">
 </head>
 <body>
 
@@ -754,26 +22,29 @@
 
             <!-- Output Display Selector -->
             <div class="display-selector-wrap">
-                <span style="color: var(--text-dim); font-size: 0.75rem;">OUTPUT:</span>
+                <span class="micro-label">OUTPUT:</span>
                 <select id="stageDisplaySelect" class="display-select">
                     <option value="">Scanning displays...</option>
                 </select>
+                <button id="btnToggleStagePip" class="btn-small" title="Bật/Tắt cửa sổ xem trước Stage trên màn hình chính" style="font-size:10px; padding:3px 8px; font-weight:700; color:var(--accent-cyan); border-color:rgba(0,229,255,0.4); margin-left:4px;">Stage PiP</button>
             </div>
         </div>
 
         <div class="header-center">
             <div class="system-clock">
+                <span class="clock-pulse-dot" title="Timecode Master Sync"></span>
                 <span id="dateText" class="date">17/10/2026</span>
                 <span id="clockText">16:30:00</span>
             </div>
         </div>
 
-        <!-- Master Action & Panic Center -->
+        <!-- Master Action & Panic Center with Fitts's Law Barrier -->
         <div class="action-center">
             <button id="btnGoLive" class="btn-live">
                 <span>GO LIVE</span>
                 <span class="sub-key">[SPACE]</span>
             </button>
+            <div class="action-divider"></div>
             <button id="btnSafeLogo" class="btn-panic btn-safe-logo">
                 <span>SAFE LOGO</span>
                 <span class="sub-key">[L]</span>
@@ -802,7 +73,7 @@
             <div class="drop-overlay" id="dropOverlay">📥 Thả File Video/Ảnh vào đây</div>
 
             <div class="panel-header">
-                <span>Rundown (<span id="cueCount">0</span>)</span>
+                <span>Rundown (<span id="cueCount" style="font-family:'JetBrains Mono', Consolas, monospace; font-variant-numeric:tabular-nums lining-nums;">0</span>)</span>
                 <div style="display:flex; gap:6px;">
                     <button id="btnLoadDemo" class="btn-small" title="Load sample event cues">Demo</button>
                     <button id="btnAddFiles" class="btn-small">+ Add</button>
@@ -829,8 +100,8 @@
                 <div class="monitor-frame pvw-frame" id="pvwFrame">
                     <div class="mon-bar">
                         <span class="tally-tag tally-pvw">● PREVIEW (PVW)</span>
-                        <span id="pvwCueTitle" style="color:var(--text-main); font-weight:600;">NO CUE SELECTED</span>
-                        <span id="pvwTypeTag" style="color:var(--text-dim);">STANDBY</span>
+                        <span id="pvwCueTitle" class="mon-bar-title" style="color:var(--text-main); font-weight:600;">NO CUE SELECTED</span>
+                        <span id="pvwTypeTag" class="mon-status-tag" style="color:var(--text-dim);">STANDBY</span>
                     </div>
 
                     <div class="mon-body" id="pvwContainer">
@@ -849,7 +120,7 @@
                             <span id="pvwTimeDisplay">00:00 / 00:00</span>
                         </div>
                         <div style="display:flex; align-items:center; gap:8px;">
-                            <span style="font-size:0.7rem; color:var(--text-dim);">END:</span>
+                            <span class="micro-label">END:</span>
                             <select id="pvwEndBehaviorSelect" class="btn-small" style="padding:2px 4px;">
                                 <option value="HOLD_LAST_FRAME">Hold Frame Cuối</option>
                                 <option value="LOOP">Lặp Vô Tận (Loop)</option>
@@ -863,21 +134,29 @@
                 <!-- PROGRAM (PGM) MONITOR -->
                 <div class="monitor-frame pgm-frame" id="pgmFrame">
                     <div class="mon-bar">
-                        <span class="tally-tag tally-pgm">● PROGRAM (PGM) - ON AIR</span>
-                        <span id="pgmCueTitle" style="color:#fff; font-weight:700;">STAGE BLACK</span>
-                        <span id="pgmStatusTag" style="color:var(--pgm-red);">ACTIVE</span>
+                        <span class="tally-tag tally-pgm"><span class="tally-pulse-dot"></span> PROGRAM (PGM) - ON AIR</span>
+                        <span id="pgmCueTitle" class="mon-bar-title" style="color:#fff; font-weight:700;">STAGE BLACK</span>
+                        <span id="pgmStatusTag" class="mon-status-tag" style="color:var(--pgm-red);">ACTIVE</span>
                     </div>
 
                     <div class="mon-body" id="pgmContainer">
-                        <div class="mon-empty-hint">STAGE BLACKOUT / IDLE</div>
+                        <div id="pgmDeckA" class="pgm-deck active"></div>
+                        <div id="pgmDeckB" class="pgm-deck"></div>
+                        <div class="mon-empty-hint" id="pgmEmptyHint">STAGE BLACKOUT / IDLE</div>
+                        <div id="pgmTickerOverlay" class="pgm-ticker-overlay">
+                            <div class="pgm-ticker-badge">TICKER</div>
+                            <div class="pgm-ticker-track">
+                                <div id="pgmTickerContent" class="pgm-ticker-text"></div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="mon-footer">
-                        <div>
-                            <span style="color:var(--text-dim);">ELAPSED:</span> <span id="pgmElapsed">00:00</span>
+                        <div class="footer-time-block">
+                            <span class="footer-time-label">ELAPSED:</span> <span id="pgmElapsed">00:00</span>
                         </div>
-                        <div>
-                            <span style="color:var(--pgm-red); font-weight:700;">REMAINING:</span> <span id="pgmRemaining" style="font-weight:700;">00:00</span>
+                        <div class="footer-time-block pgm-countdown-block">
+                            <span class="pgm-countdown-label">REMAINING:</span> <span id="pgmRemaining" class="pgm-countdown-val">00:00</span>
                         </div>
                     </div>
                 </div>
@@ -887,7 +166,7 @@
             <!-- Transition Hub & Viewport Tools -->
             <div class="viewport-bottom-ctrls">
                 <div class="trans-controls">
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-dim);">TRANSITION:</span>
+                    <span class="micro-label">TRANSITION:</span>
                     <button class="btn-trans" data-trans="cut">CUT (0ms)</button>
                     <button class="btn-trans" data-trans="fast">FAST (0.4s)</button>
                     <button class="btn-trans active" data-trans="normal">NORMAL (0.8s)</button>
@@ -895,7 +174,7 @@
                 </div>
 
                 <div class="scaling-selector">
-                    <span>ASPECT SCALING:</span>
+                    <span class="micro-label">ASPECT SCALING:</span>
                     <button class="btn-small btn-scale active" data-scale="contain">Fit (Contain)</button>
                     <button class="btn-small btn-scale" data-scale="cover">Fill (Cover)</button>
                     <button class="btn-small btn-scale" data-scale="fill">Stretch</button>
@@ -914,9 +193,9 @@
                 </div>
 
                 <div class="audio-row">
-                    <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-dim);">
-                        <span>Master Volume</span>
-                        <span id="volumeValueText">100%</span>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="micro-label">Master Volume</span>
+                        <span id="volumeValueText" style="font-family:'JetBrains Mono', Consolas, monospace; font-variant-numeric:tabular-nums lining-nums; font-weight:700; font-size:12px; color:var(--text-main);">100%</span>
                     </div>
                     <div class="slider-wrap">
                         <input type="range" id="masterVolumeSlider" min="0" max="1" step="0.01" value="1.0">
@@ -929,12 +208,21 @@
                     <div class="vu-bar"><div class="vu-fill" id="vuRight"></div></div>
                 </div>
 
-                <!-- Audio Output Sink -->
+                <!-- Audio Output Sinks (Master FOH & Cue Headphone) -->
                 <div style="display:flex; flex-direction:column; gap:4px;">
-                    <span style="font-size:0.7rem; color:var(--text-dim);">Audio Device Out:</span>
+                    <span class="micro-label">Master FOH Soundcard:</span>
                     <select id="audioSinkSelect" class="btn-small" style="width:100%;">
                         <option value="">Default System Audio</option>
                     </select>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:4px; margin-top:4px;">
+                    <span class="micro-label">Cue Headphones Out:</span>
+                    <select id="cueAudioSinkSelect" class="btn-small" style="width:100%;">
+                        <option value="">Default System Audio</option>
+                    </select>
+                </div>
+                <div id="audioIsolationWarning" style="display:none; font-size:10px; font-weight:700; color:#fbbf24; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.4); border-radius:var(--radius-micro); padding:4px 8px; margin-top:4px; font-family:'JetBrains Mono', Consolas, monospace; letter-spacing:0.04em;">
+                    ⚠️ Cue &amp; Master sharing same audio device!
                 </div>
             </div>
 
@@ -947,7 +235,7 @@
 
                 <!-- Ticker Control -->
                 <div class="ticker-input-area">
-                    <span style="font-size:0.7rem; color:var(--text-dim);">Live Ticker Marquee:</span>
+                    <span class="micro-label">Live Ticker Marquee:</span>
                     <textarea id="tickerInput" class="ticker-text-box" placeholder="Nhập nội dung chữ chạy sự kiện... (Ví dụ: Chào mừng đại biểu tham dự Tech Summit 2026)"></textarea>
                     <div class="ticker-btns">
                         <button id="btnPushTicker" class="btn-small" style="background:var(--accent-blue); color:#000; font-weight:700;">PUSH LIVE</button>
@@ -998,604 +286,13 @@
     </div>
 
     <!-- Application Script -->
-    <script>
-        const { ipcRenderer } = require('electron');
-        const path = require('path');
 
-        // State variables
-        let rundown = [];
-        let selectedIndex = -1;
-        let pvwCue = null;
-        let pgmCue = null;
-        let currentTransition = 'normal';
-        let currentScaling = 'contain';
-        let isMasterMuted = false;
-        let watermarkVisible = false;
-        let isCueAudioOn = false;
-
-        // Elements
-        const rundownList = document.getElementById('rundownList');
-        const rundownCol = document.getElementById('rundownCol');
-        const dropOverlay = document.getElementById('dropOverlay');
-        const cueCount = document.getElementById('cueCount');
-        const stageDisplaySelect = document.getElementById('stageDisplaySelect');
-        const pvwContainer = document.getElementById('pvwContainer');
-        const pvwCueTitle = document.getElementById('pvwCueTitle');
-        const pvwTypeTag = document.getElementById('pvwTypeTag');
-        const pvwEndBehaviorSelect = document.getElementById('pvwEndBehaviorSelect');
-        const pvwTimeDisplay = document.getElementById('pvwTimeDisplay');
-        const btnPvwPlayPause = document.getElementById('btnPvwPlayPause');
-        const btnCueAudio = document.getElementById('btnCueAudio');
-        const pvwScrubber = document.getElementById('pvwScrubber');
-        const pgmContainer = document.getElementById('pgmContainer');
-        const pgmCueTitle = document.getElementById('pgmCueTitle');
-        const pgmFrame = document.getElementById('pgmFrame');
-        const pgmElapsed = document.getElementById('pgmElapsed');
-        const pgmRemaining = document.getElementById('pgmRemaining');
-        const masterVolumeSlider = document.getElementById('masterVolumeSlider');
-        const volumeValueText = document.getElementById('volumeValueText');
-        const btnMuteMaster = document.getElementById('btnMuteMaster');
-        const audioSinkSelect = document.getElementById('audioSinkSelect');
-        const vuLeft = document.getElementById('vuLeft');
-        const vuRight = document.getElementById('vuRight');
-        const tickerInput = document.getElementById('tickerInput');
-        const btnPushTicker = document.getElementById('btnPushTicker');
-        const btnHideTicker = document.getElementById('btnHideTicker');
-        const btnToggleWatermark = document.getElementById('btnToggleWatermark');
-
-        // Action buttons
-        const btnGoLive = document.getElementById('btnGoLive');
-        const btnSafeLogo = document.getElementById('btnSafeLogo');
-        const btnFreeze = document.getElementById('btnFreeze');
-        const btnFTB = document.getElementById('btnFTB');
-        const btnBlackout = document.getElementById('btnBlackout');
-
-        // Format Seconds to MM:SS
-        function formatTime(seconds) {
-            if (isNaN(seconds) || seconds < 0) return '00:00';
-            const m = Math.floor(seconds / 60);
-            const s = Math.floor(seconds % 60);
-            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-        }
-
-        // Live Clock
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('clockText').innerText = now.toLocaleTimeString('vi-VN');
-            document.getElementById('dateText').innerText = now.toLocaleDateString('vi-VN');
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        // Displays Populate
-        async function refreshDisplays() {
-            const data = await ipcRenderer.invoke('get-displays');
-            stageDisplaySelect.innerHTML = '';
-            data.displays.forEach(disp => {
-                const opt = document.createElement('option');
-                opt.value = disp.id;
-                opt.innerText = disp.label;
-                if (disp.id === data.selectedId) opt.selected = true;
-                stageDisplaySelect.appendChild(opt);
-            });
-        }
-        refreshDisplays();
-
-        stageDisplaySelect.addEventListener('change', () => {
-            const selectedId = Number(stageDisplaySelect.value);
-            ipcRenderer.send('set-stage-display', selectedId);
-        });
-
-        ipcRenderer.on('displays-changed', () => refreshDisplays());
-
-        // Audio Device Sinks
-        async function populateAudioSinks() {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
-            try {
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                const audioOutputs = devices.filter(d => d.kind === 'audiooutput');
-                audioSinkSelect.innerHTML = '<option value="">Default System Audio</option>';
-                audioOutputs.forEach(device => {
-                    const opt = document.createElement('option');
-                    opt.value = device.deviceId;
-                    opt.innerText = device.label || `Audio Output ${audioSinkSelect.length}`;
-                    audioSinkSelect.appendChild(opt);
-                });
-            } catch (err) {
-                console.warn('Enumerate audio devices error:', err);
-            }
-        }
-        populateAudioSinks();
-
-        audioSinkSelect.addEventListener('change', () => {
-            ipcRenderer.send('stage-control', 'SET_AUDIO_SINK', { sinkId: audioSinkSelect.value });
-        });
-
-        // Rundown Rendering
-        function renderRundown() {
-            rundownList.innerHTML = '';
-            cueCount.innerText = rundown.length;
-
-            rundown.forEach((cue, idx) => {
-                const card = document.createElement('div');
-                card.className = `cue-card ${idx === selectedIndex ? 'selected-pvw' : ''} ${pgmCue && pgmCue.id === cue.id ? 'active-pgm' : ''}`;
-                
-                let thumbHtml = cue.type === 'video' ? '🎬' : '🖼️';
-                if (cue.path.endsWith('.svg') || cue.path.endsWith('.png') || cue.path.endsWith('.jpg') || cue.path.endsWith('.jpeg')) {
-                    thumbHtml = `<img src="file://${cue.path}">`;
-                }
-
-                card.innerHTML = `
-                    <div class="cue-thumb">
-                        ${thumbHtml}
-                        <div class="cue-badge-type">${cue.type.toUpperCase()}</div>
-                    </div>
-                    <div class="cue-meta">
-                        <div class="cue-title">${cue.name}</div>
-                        <div class="cue-details">
-                            <span>#${idx + 1}</span>
-                            <span class="cue-behavior-tag">${cue.endBehavior}</span>
-                        </div>
-                    </div>
-                `;
-
-                card.addEventListener('click', () => {
-                    selectCue(idx);
-                });
-
-                rundownList.appendChild(card);
-            });
-            saveRundown();
-        }
-
-        function selectCue(idx) {
-            if (idx < 0 || idx >= rundown.length) return;
-            selectedIndex = idx;
-            pvwCue = rundown[idx];
-            loadPvw(pvwCue);
-            renderRundown();
-        }
-
-        // Cleanup previous media to prevent memory leak
-        function cleanupPvw() {
-            const oldVideo = pvwContainer.querySelector('video');
-            if (oldVideo) {
-                oldVideo.pause();
-                oldVideo.src = '';
-                oldVideo.load();
-                oldVideo.remove();
-            }
-            pvwContainer.innerHTML = '';
-        }
-
-        // Load into PREVIEW
-        function loadPvw(cue) {
-            cleanupPvw();
-            pvwCueTitle.innerText = cue.name;
-            pvwTypeTag.innerText = cue.type.toUpperCase();
-            pvwEndBehaviorSelect.value = cue.endBehavior;
-            document.getElementById('pvwFrame').classList.add('has-content');
-
-            if (cue.type === 'video') {
-                const video = document.createElement('video');
-                video.src = `file://${cue.path}`;
-                video.className = 'stage-media-element';
-                video.style.objectFit = currentScaling;
-                video.muted = !isCueAudioOn;
-                
-                video.ontimeupdate = () => {
-                    pvwTimeDisplay.innerText = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
-                    if (video.duration) {
-                        pvwScrubber.value = (video.currentTime / video.duration) * 100;
-                    }
-                };
-
-                pvwScrubber.oninput = () => {
-                    if (video.duration) {
-                        video.currentTime = (pvwScrubber.value / 100) * video.duration;
-                    }
-                };
-
-                btnPvwPlayPause.onclick = () => {
-                    if (video.paused) {
-                        video.play();
-                        btnPvwPlayPause.innerText = '⏸ Pause';
-                    } else {
-                        video.pause();
-                        btnPvwPlayPause.innerText = '▶ Play';
-                    }
-                };
-
-                pvwContainer.appendChild(video);
-            } else {
-                const img = document.createElement('img');
-                img.src = `file://${cue.path}`;
-                img.style.objectFit = currentScaling;
-                pvwContainer.appendChild(img);
-                pvwTimeDisplay.innerText = 'STATIC IMAGE';
-                pvwScrubber.value = 0;
-                btnPvwPlayPause.onclick = null;
-            }
-        }
-
-        // Cue Audio (Headphone Listen)
-        btnCueAudio.addEventListener('click', () => {
-            isCueAudioOn = !isCueAudioOn;
-            btnCueAudio.innerText = `🎧 Cue: ${isCueAudioOn ? 'ON' : 'OFF'}`;
-            btnCueAudio.style.color = isCueAudioOn ? 'var(--pvw-green)' : 'var(--text-main)';
-            const vid = pvwContainer.querySelector('video');
-            if (vid) vid.muted = !isCueAudioOn;
-        });
-
-        pvwEndBehaviorSelect.addEventListener('change', () => {
-            if (pvwCue) {
-                pvwCue.endBehavior = pvwEndBehaviorSelect.value;
-                renderRundown();
-            }
-        });
-
-        // Add Ingest Helper
-        function ingestFilePath(fp) {
-            const ext = fp.split('.').pop().toLowerCase();
-            const isVid = ['mp4', 'mov', 'webm', 'mkv', 'avi'].includes(ext);
-            const name = fp.split('\\').pop().split('/').pop();
-            rundown.push({
-                id: 'cue_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-                name: name,
-                path: fp,
-                type: isVid ? 'video' : 'image',
-                endBehavior: 'HOLD_LAST_FRAME'
-            });
-        }
-
-        // Add Files via File Picker
-        document.getElementById('btnAddFiles').addEventListener('click', async () => {
-            const filePaths = await ipcRenderer.invoke('open-file-dialog');
-            if (filePaths && filePaths.length > 0) {
-                filePaths.forEach(fp => ingestFilePath(fp));
-                renderRundown();
-                if (selectedIndex === -1 && rundown.length > 0) selectCue(0);
-            }
-        });
-
-        // Drag & Drop Implementation
-        window.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            dropOverlay.classList.add('active');
-        });
-
-        window.addEventListener('dragleave', (e) => {
-            if (e.relatedTarget === null) {
-                dropOverlay.classList.remove('active');
-            }
-        });
-
-        window.addEventListener('drop', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            dropOverlay.classList.remove('active');
-            if (e.dataTransfer && e.dataTransfer.files) {
-                for (const f of e.dataTransfer.files) {
-                    ingestFilePath(f.path);
-                }
-                renderRundown();
-                if (selectedIndex === -1 && rundown.length > 0) selectCue(0);
-            }
-        });
-
-        // Load Sample Demo Set
-        document.getElementById('btnLoadDemo').addEventListener('click', () => {
-            const basePath = path.join(__dirname, '../../../assets');
-            rundown = [
-                {
-                    id: 'cue_demo_1',
-                    name: '1. Tech Summit 2026 - Main Key Visual',
-                    path: path.join(basePath, 'sample_keyvisual.svg'),
-                    type: 'image',
-                    endBehavior: 'HOLD_LAST_FRAME'
-                },
-                {
-                    id: 'cue_demo_2',
-                    name: '2. Opening Countdown (30s Standby)',
-                    path: path.join(basePath, 'sample_countdown.svg'),
-                    type: 'image',
-                    endBehavior: 'HOLD_LAST_FRAME'
-                },
-                {
-                    id: 'cue_demo_3',
-                    name: '3. LUMEN Brand Showcase (Intro Graphic)',
-                    path: path.join(basePath, 'logo.svg'),
-                    type: 'image',
-                    endBehavior: 'LOOP'
-                }
-            ];
-            renderRundown();
-            selectCue(0);
-        });
-
-        // Delete Cue
-        function deleteSelectedCue() {
-            if (selectedIndex >= 0 && selectedIndex < rundown.length) {
-                rundown.splice(selectedIndex, 1);
-                if (selectedIndex >= rundown.length) selectedIndex = rundown.length - 1;
-                renderRundown();
-                if (selectedIndex >= 0) selectCue(selectedIndex);
-                else {
-                    pvwCue = null;
-                    cleanupPvw();
-                    pvwCueTitle.innerText = 'NO CUE SELECTED';
-                    pvwTypeTag.innerText = 'STANDBY';
-                    document.getElementById('pvwFrame').classList.remove('has-content');
-                }
-            }
-        }
-        document.getElementById('btnDeleteCue').addEventListener('click', deleteSelectedCue);
-
-        // Clear All
-        document.getElementById('btnClearRundown').addEventListener('click', () => {
-            if (confirm('Bạn có chắc muốn xóa sạch toàn bộ kịch bản Rundown?')) {
-                rundown = [];
-                selectedIndex = -1;
-                pvwCue = null;
-                cleanupPvw();
-                pvwCueTitle.innerText = 'NO CUE SELECTED';
-                pvwTypeTag.innerText = 'STANDBY';
-                document.getElementById('pvwFrame').classList.remove('has-content');
-                renderRundown();
-            }
-        });
-
-        // Move Up / Down
-        document.getElementById('btnMoveUp').addEventListener('click', () => {
-            if (selectedIndex > 0) {
-                const temp = rundown[selectedIndex];
-                rundown[selectedIndex] = rundown[selectedIndex - 1];
-                rundown[selectedIndex - 1] = temp;
-                selectedIndex--;
-                renderRundown();
-            }
-        });
-
-        document.getElementById('btnMoveDown').addEventListener('click', () => {
-            if (selectedIndex >= 0 && selectedIndex < rundown.length - 1) {
-                const temp = rundown[selectedIndex];
-                rundown[selectedIndex] = rundown[selectedIndex + 1];
-                rundown[selectedIndex + 1] = temp;
-                selectedIndex++;
-                renderRundown();
-            }
-        });
-
-        // Storage Save / Load
-        function saveRundown() {
-            localStorage.setItem('lumen_rundown', JSON.stringify(rundown));
-        }
-
-        function loadRundown() {
-            const raw = localStorage.getItem('lumen_rundown');
-            if (raw) {
-                try {
-                    rundown = JSON.parse(raw);
-                    renderRundown();
-                    if (rundown.length > 0) selectCue(0);
-                } catch (e) {
-                    console.error(e);
-                }
-            } else {
-                document.getElementById('btnLoadDemo').click();
-            }
-        }
-        loadRundown();
-
-        // ==================== GO LIVE ====================
-        function triggerGoLive() {
-            if (!pvwCue) return;
-            pgmCue = { ...pvwCue };
-            
-            // Send IPC to Stage Window
-            ipcRenderer.send('go-live', {
-                media: pgmCue,
-                transition: currentTransition,
-                scaling: currentScaling
-            });
-
-            // Mirror into PGM Container on Dashboard
-            const oldVid = pgmContainer.querySelector('video');
-            if (oldVid) {
-                oldVid.pause();
-                oldVid.src = '';
-                oldVid.load();
-                oldVid.remove();
-            }
-            pgmContainer.innerHTML = '';
-            pgmCueTitle.innerText = pgmCue.name;
-            pgmFrame.classList.add('is-live');
-
-            if (pgmCue.type === 'video') {
-                const vid = document.createElement('video');
-                vid.src = `file://${pgmCue.path}`;
-                vid.className = 'stage-media-element';
-                vid.style.objectFit = currentScaling;
-                vid.autoplay = true;
-                vid.muted = true; // Muted in dashboard mirror to prevent doubling sound
-                if (pgmCue.endBehavior === 'LOOP') vid.loop = true;
-                pgmContainer.appendChild(vid);
-            } else {
-                const img = document.createElement('img');
-                img.src = `file://${pgmCue.path}`;
-                img.style.objectFit = currentScaling;
-                pgmContainer.appendChild(img);
-                pgmElapsed.innerText = 'STATIC';
-                pgmRemaining.innerText = 'STATIC';
-            }
-
-            renderRundown();
-        }
-
-        btnGoLive.addEventListener('click', triggerGoLive);
-
-        // Transition Buttons
-        document.querySelectorAll('.btn-trans').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.btn-trans').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentTransition = btn.dataset.trans;
-            });
-        });
-
-        // Scaling Buttons
-        document.querySelectorAll('.btn-scale').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.btn-scale').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentScaling = btn.dataset.scale;
-                ipcRenderer.send('stage-control', 'SET_SCALING', { scaling: currentScaling });
-                
-                // Update local previews
-                const pvwEl = pvwContainer.querySelector('video, img');
-                if (pvwEl) pvwEl.style.objectFit = currentScaling;
-                const pgmEl = pgmContainer.querySelector('video, img');
-                if (pgmEl) pgmEl.style.objectFit = currentScaling;
-            });
-        });
-
-        // Emergency Panic Controls
-        btnSafeLogo.addEventListener('click', () => {
-            btnSafeLogo.classList.toggle('active');
-            ipcRenderer.send('stage-control', 'SAFE_LOGO', {
-                logoPath: path.join(__dirname, '../../../assets/sample_keyvisual.svg')
-            });
-        });
-
-        btnFreeze.addEventListener('click', () => {
-            btnFreeze.classList.toggle('active');
-            ipcRenderer.send('stage-control', 'FREEZE');
-        });
-
-        btnFTB.addEventListener('click', () => {
-            btnFTB.classList.toggle('active');
-            ipcRenderer.send('stage-control', 'FTB');
-        });
-
-        btnBlackout.addEventListener('click', () => {
-            btnBlackout.classList.toggle('active');
-            ipcRenderer.send('stage-control', 'BLACKOUT');
-        });
-
-        // Audio Controls
-        masterVolumeSlider.addEventListener('input', () => {
-            const vol = parseFloat(masterVolumeSlider.value);
-            volumeValueText.innerText = Math.round(vol * 100) + '%';
-            ipcRenderer.send('stage-control', 'SET_VOLUME', { volume: vol });
-        });
-
-        btnMuteMaster.addEventListener('click', () => {
-            isMasterMuted = !isMasterMuted;
-            btnMuteMaster.innerText = isMasterMuted ? 'UNMUTE' : 'Mute';
-            btnMuteMaster.style.color = isMasterMuted ? '#fff' : 'var(--pgm-red)';
-            btnMuteMaster.style.background = isMasterMuted ? 'var(--pgm-red)' : '';
-            ipcRenderer.send('stage-control', 'SET_MUTE', { muted: isMasterMuted });
-        });
-
-        // VU Meter Simulation
-        setInterval(() => {
-            if (isMasterMuted || !pgmCue) {
-                vuLeft.style.width = '0%';
-                vuRight.style.width = '0%';
-            } else {
-                const vol = parseFloat(masterVolumeSlider.value);
-                const rL = (30 + Math.random() * 65) * vol;
-                const rR = (28 + Math.random() * 67) * vol;
-                vuLeft.style.width = rL + '%';
-                vuRight.style.width = rR + '%';
-            }
-        }, 120);
-
-        // Overlays
-        btnToggleWatermark.addEventListener('click', () => {
-            watermarkVisible = !watermarkVisible;
-            btnToggleWatermark.innerText = `Logo: ${watermarkVisible ? 'ON' : 'OFF'}`;
-            btnToggleWatermark.style.color = watermarkVisible ? 'var(--accent-blue)' : '';
-            ipcRenderer.send('stage-control', 'TOGGLE_LOGO');
-        });
-
-        btnPushTicker.addEventListener('click', () => {
-            const txt = tickerInput.value.trim();
-            if (txt) {
-                ipcRenderer.send('stage-control', 'UPDATE_TICKER', { text: txt });
-            }
-        });
-
-        btnHideTicker.addEventListener('click', () => {
-            ipcRenderer.send('stage-control', 'HIDE_TICKER');
-        });
-
-        // Stage Heartbeat Listener
-        ipcRenderer.on('stage-status', (event, status) => {
-            if (status.event === 'media-ended') {
-                // Auto next
-                if (selectedIndex < rundown.length - 1) {
-                    selectCue(selectedIndex + 1);
-                    triggerGoLive();
-                }
-                return;
-            }
-
-            if (status.hasVideo) {
-                pgmElapsed.innerText = formatTime(status.currentTime);
-                pgmRemaining.innerText = formatTime(status.duration - status.currentTime);
-            }
-
-            // Sync indicators
-            btnBlackout.classList.toggle('active', !!status.isBlackout);
-            btnFTB.classList.toggle('active', !!status.isFTB);
-            btnFreeze.classList.toggle('active', !!status.isFrozen);
-            btnSafeLogo.classList.toggle('active', !!status.isSafeLogo);
-        });
-
-        // Global Ergonomic Hotkeys
-        window.addEventListener('keydown', (e) => {
-            if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
-
-            switch (e.code) {
-                case 'Space':
-                case 'NumpadEnter':
-                    e.preventDefault();
-                    triggerGoLive();
-                    break;
-                case 'KeyB':
-                case 'Escape':
-                case 'NumpadSubtract':
-                    btnBlackout.click();
-                    break;
-                case 'KeyF':
-                case 'NumpadMultiply':
-                    btnFreeze.click();
-                    break;
-                case 'KeyL':
-                case 'Numpad4':
-                    btnSafeLogo.click();
-                    break;
-                case 'KeyT':
-                case 'NumpadAdd':
-                    btnFTB.click();
-                    break;
-                case 'KeyM':
-                case 'NumpadDivide':
-                    btnMuteMaster.click();
-                    break;
-                case 'Delete':
-                    deleteSelectedCue();
-                    break;
-                case 'ArrowUp':
-                    if (selectedIndex > 0) selectCue(selectedIndex - 1);
-                    break;
-                case 'ArrowDown':
-                    if (selectedIndex < rundown.length - 1) selectCue(selectedIndex + 1);
-                    break;
-            }
-        });
-    </script>
+    <!-- Modular Clean Architecture Scripts -->
+    <script src="scripts/app.js"></script>
+    <script src="scripts/rundown.js"></script>
+    <script src="scripts/dual_deck.js"></script>
+    <script src="scripts/audio_routing.js"></script>
+    <script src="scripts/hardware_midi.js"></script>
+    <script src="scripts/hotkeys.js"></script>
 </body>
 </html>

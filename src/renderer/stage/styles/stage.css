@@ -1,0 +1,219 @@
+html, body, #stageContainer, .media-deck, .stage-media-element, * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none !important; /* CRITICAL: Never show mouse cursor on Stage */
+            -webkit-user-select: none !important;
+            user-select: none !important;
+            -webkit-user-drag: none !important;
+            outline: none !important;
+            -webkit-touch-callout: none !important;
+        }
+
+        html, body {
+            overflow: hidden !important;
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+            background-color: #000000 !important;
+            color: #ffffff;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        ::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        /* Suppress focus outlines, highlights and browser default tooltips */
+        *:focus, *:focus-visible {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        img, video {
+            border: 0 !important;
+            outline: none !important;
+        }
+
+        #stageContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: #000000;
+            overflow: hidden;
+        }
+
+        /* Dual-Deck Layers (Player A & Player B) */
+        .media-deck {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .media-deck.active {
+            opacity: 1;
+            z-index: 20;
+        }
+
+        .media-deck.fade-fast {
+            transition: opacity 0.4s ease-in-out;
+        }
+        .media-deck.fade-normal {
+            transition: opacity 0.8s ease-in-out;
+        }
+        .media-deck.fade-slow {
+            transition: opacity 1.6s ease-in-out;
+        }
+        .media-deck.fade-cut {
+            transition: opacity 0s;
+        }
+
+        .stage-media-element {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Dynamically changed to cover / fill */
+        }
+
+        /* Safe Logo / Key Visual Layer */
+        #safeLogoLayer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000000;
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        #safeLogoLayer.active {
+            opacity: 1;
+        }
+
+        #safeLogoLayer img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        /* Watermark / Logo Overlay */
+        #watermarkOverlay {
+            position: absolute;
+            top: 36px;
+            right: 48px;
+            width: 140px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 60;
+            pointer-events: none;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.8));
+        }
+
+        #watermarkOverlay.visible {
+            opacity: 0.85;
+        }
+
+        /* Live Ticker Marquee Overlay - Pro Broadcast Crawl */
+        #tickerOverlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 64px;
+            background: rgba(10, 12, 16, 0.96);
+            border-top: 2px solid #00e5ff;
+            box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+            z-index: 70;
+            pointer-events: none;
+        }
+
+        #tickerOverlay.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .ticker-badge {
+            background: #dc2626;
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 8px 18px;
+            margin-left: 24px;
+            border-radius: 2px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            flex-shrink: 0;
+            box-shadow: none;
+        }
+
+        .ticker-track {
+            flex-grow: 1;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .ticker-text {
+            display: inline-block;
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: #ffffff;
+            padding-left: 100%;
+            animation: marquee 24s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Blackout & Fade To Black (FTB) Overlays */
+        #blackoutCover {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 999;
+            transition: opacity 0.05s ease; /* Fast blackout */
+        }
+
+        #blackoutCover.active-blackout {
+            opacity: 1;
+        }
+
+        #blackoutCover.active-ftb {
+            opacity: 1;
+            transition: opacity 1.0s ease-in-out; /* Smooth FTB */
+        }
