@@ -575,6 +575,32 @@
             border-color: #94a3b8;
         }
 
+        /* Pro Broadcast Hardware Console Fader */
+        .pro-fader-wrap input[type=range] {
+            height: 10px;
+            background: #05070a;
+            border: 1px solid #1a2233;
+            border-radius: 2px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.9);
+        }
+
+        .pro-fader-wrap input[type=range]::-webkit-slider-thumb {
+            width: 18px;
+            height: 24px;
+            background: linear-gradient(180deg, #334155 0%, #0f172a 100%);
+            border: 1px solid #00e5ff;
+            border-radius: 2px;
+            box-shadow: 0 0 6px rgba(0, 229, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            cursor: ew-resize;
+            position: relative;
+        }
+
+        .pro-fader-wrap input[type=range]::-webkit-slider-thumb:hover {
+            background: linear-gradient(180deg, #475569 0%, #1e293b 100%);
+            border-color: #38bdf8;
+            box-shadow: 0 0 8px rgba(0, 229, 255, 0.7);
+        }
+
         .vu-meter-wrap {
             display: flex;
             flex-direction: column;

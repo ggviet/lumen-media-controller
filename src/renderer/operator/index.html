@@ -228,7 +228,7 @@
                 <div class="settings-block audio-deck-block" id="audioDeckBlock">
                     <div class="block-title">
                         <div style="display:flex; align-items:center; gap:6px;">
-                            <span style="color:var(--accent-cyan); font-weight:800; font-size:12px; letter-spacing:0.04em;">AUDIO / BGM DECK</span>
+                            <span style="color:var(--accent-cyan); font-weight:800; font-size:11px; letter-spacing:0.06em;">AUDIO / BGM DECK</span>
                             <span id="audioDeckLiveBadge" class="audio-deck-badge standby">STANDBY</span>
                         </div>
                         <div style="display:flex; gap:4px;">
@@ -238,36 +238,43 @@
                     </div>
 
                     <!-- Active Track Info & Format -->
-                    <div class="audio-deck-track-info" style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+                    <div class="audio-deck-track-info" style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
                         <span id="audioDeckFmtBadge" class="badge-fmt badge-fmt-mp3">MP3</span>
                         <div id="audioDeckTrackTitle" class="audio-deck-title" title="Chưa nạp bài nhạc" style="font-size:11px; font-weight:700; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1;">NO TRACK LOADED</div>
                     </div>
 
                     <!-- Interactive Waveform Display (HTML5 Canvas) -->
-                    <div class="waveform-container" id="waveformContainer" style="position:relative; width:100%; height:42px; background:#0d1117; border-radius:4px; overflow:hidden; margin-bottom:6px; cursor:pointer;" title="Click hoặc kéo để tua nhạc">
-                        <canvas id="audioWaveformCanvas" width="280" height="42" style="width:100%; height:100%; display:block;"></canvas>
+                    <div class="waveform-container" id="waveformContainer" style="position:relative; width:100%; height:40px; background:#07090e; border:1px solid #161b26; border-radius:4px; overflow:hidden; margin-bottom:4px; cursor:pointer;" title="Click hoặc kéo để tua nhạc">
+                        <canvas id="audioWaveformCanvas" width="280" height="40" style="width:100%; height:100%; display:block;"></canvas>
                         <div id="waveformPlayhead" class="waveform-playhead" style="position:absolute; top:0; bottom:0; width:2px; background:#fff; display:none; pointer-events:none; box-shadow:0 0 4px #fff;"></div>
                     </div>
 
                     <!-- Broadcast Timecode & Seekbar -->
-                    <div class="audio-time-row" style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+                    <div class="audio-time-row" style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
                         <span id="audioDeckElapsed" class="audio-timecode" style="font-family:'JetBrains Mono', Consolas, monospace; font-size:11px; font-weight:700; color:var(--text-main); min-width:38px;">00:00</span>
                         <input type="range" id="audioDeckScrubber" class="audio-scrubber-slider" min="0" max="1000" value="0" style="flex:1;">
                         <span id="audioDeckRemaining" class="audio-timecode remaining" style="font-family:'JetBrains Mono', Consolas, monospace; font-size:11px; font-weight:700; color:var(--accent-cyan); min-width:44px; text-align:right;">-00:00</span>
                     </div>
 
-                    <!-- Transport Controls Row -->
-                    <div class="audio-transport-row" style="display:flex; align-items:center; justify-content:space-between; gap:4px; flex-wrap:wrap;">
-                        <button id="btnAudioDeckPlayPause" class="btn-small btn-audio-play" title="Phát / Tạm dừng (Hotkey: Shift+Space / P / Numpad5)">▶ Play</button>
-                        <button id="btnAudioDeckStop" class="btn-small" title="Dừng và về đầu bài">⏹ Stop</button>
-                        <button id="btnAudioDeckLoop" class="btn-small" title="Lặp lại bài nhạc">🔁 Loop</button>
-                        <button id="btnAudioDeckFadeOut" class="btn-small btn-fade-out" title="Hạ âm thanh từ từ 2.5s (Shift+T / Numpad.)">Fade 2.5s</button>
-                        <button id="btnCueAudioDeck" class="btn-small btn-audio-cue" title="Nghe trước trên tai nghe (PFL)">🎧 Cue: OFF</button>
-                        
-                        <!-- Dedicated Stereo Mini VU Meter -->
-                        <div class="audio-deck-vu" style="display:flex; gap:2px; align-items:center; height:18px;">
-                            <div class="vu-bar mini" style="width:4px; height:18px; background:#1e293b; border-radius:1px; overflow:hidden; position:relative;"><div class="vu-fill" id="audioDeckVuL" style="position:absolute; bottom:0; width:100%; height:0%; background:var(--accent-cyan); transition:height 0.05s ease;"></div></div>
-                            <div class="vu-bar mini" style="width:4px; height:18px; background:#1e293b; border-radius:1px; overflow:hidden; position:relative;"><div class="vu-fill" id="audioDeckVuR" style="position:absolute; bottom:0; width:100%; height:0%; background:var(--accent-cyan); transition:height 0.05s ease;"></div></div>
+                    <!-- Transport Controls: High-Efficiency Pro Rack Layout (Row 1: Play/Stop/Fade + Mini VU | Row 2: Loop / Cue) -->
+                    <div class="audio-transport-container" style="display:flex; flex-direction:column; gap:5px;">
+                        <!-- Row 1: Primary Play / Stop / Fade / VU -->
+                        <div style="display:flex; gap:4px; align-items:center;">
+                            <button id="btnAudioDeckPlayPause" class="btn-small btn-audio-play" style="flex:2; font-weight:700; height:28px;" title="Phát / Tạm dừng (Hotkey: Shift+Space / P / Numpad5)">▶ Play</button>
+                            <button id="btnAudioDeckStop" class="btn-small" style="flex:1; height:28px; padding:0 6px;" title="Dừng và về đầu bài">⏹ Stop</button>
+                            <button id="btnAudioDeckFadeOut" class="btn-small btn-fade-out" style="flex:1.2; height:28px; padding:0 6px; font-size:10px;" title="Hạ âm thanh từ từ 2.5s (Shift+T / Numpad.)">Fade 2.5s</button>
+                            
+                            <!-- Stereo Mini VU Meter -->
+                            <div class="audio-deck-vu" style="display:flex; gap:2px; align-items:center; height:26px; padding:0 4px; background:#07090e; border:1px solid #161b26; border-radius:3px;">
+                                <div class="vu-bar mini" style="width:4px; height:22px; background:#1e293b; border-radius:1px; overflow:hidden; position:relative;"><div class="vu-fill" id="audioDeckVuL" style="position:absolute; bottom:0; width:100%; height:0%; background:var(--accent-cyan); transition:height 0.05s ease;"></div></div>
+                                <div class="vu-bar mini" style="width:4px; height:22px; background:#1e293b; border-radius:1px; overflow:hidden; position:relative;"><div class="vu-fill" id="audioDeckVuR" style="position:absolute; bottom:0; width:100%; height:0%; background:var(--accent-cyan); transition:height 0.05s ease;"></div></div>
+                            </div>
+                        </div>
+
+                        <!-- Row 2: Secondary Loop & Headphone PFL Cue -->
+                        <div style="display:flex; gap:4px; align-items:center;">
+                            <button id="btnAudioDeckLoop" class="btn-small" style="flex:1; height:24px; font-size:10px;" title="Lặp lại bài nhạc">🔁 Loop: OFF</button>
+                            <button id="btnCueAudioDeck" class="btn-small btn-audio-cue" style="flex:1.4; height:24px; font-size:10px;" title="Nghe trước trên tai nghe (PFL)">🎧 Headphone Cue: OFF</button>
                         </div>
                     </div>
                 </div>
@@ -279,39 +286,59 @@
                 <!-- Master Audio Console -->
                 <div class="settings-block">
                     <div class="block-title">
-                        <span>Master Audio</span>
-                        <button id="btnMuteMaster" class="btn-small" style="color:var(--pgm-red);">Mute</button>
+                        <span>Master Audio Console</span>
+                        <button id="btnMuteMaster" class="btn-small" style="color:var(--pgm-red); padding:2px 10px; font-weight:800;">MUTE</button>
                     </div>
 
-                    <div class="audio-row">
+                    <!-- Fader Console Block -->
+                    <div class="audio-row" style="margin-top:2px;">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span class="micro-label">Master Volume</span>
-                            <span id="volumeValueText" style="font-family:'JetBrains Mono', Consolas, monospace; font-variant-numeric:tabular-nums lining-nums; font-weight:700; font-size:12px; color:var(--text-main);">100%</span>
+                            <span class="micro-label" style="color:var(--text-main);">Master Output Fader</span>
+                            <span id="volumeValueText" style="font-family:'JetBrains Mono', Consolas, monospace; font-variant-numeric:tabular-nums lining-nums; font-weight:800; font-size:13px; color:var(--accent-cyan);">100%</span>
                         </div>
-                        <div class="slider-wrap">
+                        <div class="slider-wrap pro-fader-wrap">
                             <input type="range" id="masterVolumeSlider" min="0" max="1" step="0.01" value="1.0">
                         </div>
                     </div>
 
-                    <!-- VU Meters -->
-                    <div class="vu-meter-wrap">
-                        <div class="vu-bar"><div class="vu-fill" id="vuLeft"></div></div>
-                        <div class="vu-bar"><div class="vu-fill" id="vuRight"></div></div>
+                    <!-- Precision VU Meter with Broadcast dB Scale -->
+                    <div class="master-vu-console" style="margin-top:4px;">
+                        <div class="vu-db-scale" style="display:flex; justify-content:space-between; font-size:8px; font-family:'JetBrains Mono', Consolas, monospace; color:#64748b; margin-bottom:2px; padding:0 2px;">
+                            <span>-INF</span>
+                            <span>-24</span>
+                            <span>-12</span>
+                            <span>-6</span>
+                            <span style="color:#f59e0b;">0dB</span>
+                            <span style="color:#ef4444; font-weight:700;">CLIP</span>
+                        </div>
+                        <div class="vu-meter-wrap" style="padding:4px; background:#05070a; border-radius:3px; border:1px solid #1a202c;">
+                            <div class="vu-bar" style="height:7px;"><div class="vu-fill" id="vuLeft"></div></div>
+                            <div class="vu-bar" style="height:7px; margin-top:2px;"><div class="vu-fill" id="vuRight"></div></div>
+                        </div>
                     </div>
 
-                    <!-- Audio Output Sinks (Master FOH & Cue Headphone) -->
-                    <div style="display:flex; flex-direction:column; gap:4px;">
-                        <span class="micro-label">Master FOH Soundcard:</span>
-                        <select id="audioSinkSelect" class="btn-small" style="width:100%;">
-                            <option value="">Default System Audio</option>
-                        </select>
+                    <!-- Compact Soundcard Route Cards -->
+                    <div class="audio-routing-card" style="margin-top:6px; display:flex; flex-direction:column; gap:6px;">
+                        <div style="display:flex; flex-direction:column; gap:2px;">
+                            <div style="display:flex; align-items:center; gap:4px;">
+                                <span style="font-size:11px;">🔊</span>
+                                <span class="micro-label">Master FOH (Sân khấu):</span>
+                            </div>
+                            <select id="audioSinkSelect" class="btn-small" style="width:100%; font-size:10px; padding:4px 6px;">
+                                <option value="">Default System Audio</option>
+                            </select>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:2px;">
+                            <div style="display:flex; align-items:center; gap:4px;">
+                                <span style="font-size:11px;">🎧</span>
+                                <span class="micro-label">Cue Headphones (Tai nghe):</span>
+                            </div>
+                            <select id="cueAudioSinkSelect" class="btn-small" style="width:100%; font-size:10px; padding:4px 6px;">
+                                <option value="">Default System Audio</option>
+                            </select>
+                        </div>
                     </div>
-                    <div style="display:flex; flex-direction:column; gap:4px; margin-top:4px;">
-                        <span class="micro-label">Cue Headphones Out:</span>
-                        <select id="cueAudioSinkSelect" class="btn-small" style="width:100%;">
-                            <option value="">Default System Audio</option>
-                        </select>
-                    </div>
+
                     <div id="audioIsolationWarning" style="display:none; font-size:10px; font-weight:700; color:#fbbf24; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.4); border-radius:var(--radius-micro); padding:4px 8px; margin-top:4px; font-family:'JetBrains Mono', Consolas, monospace; letter-spacing:0.04em;">
                         ⚠️ Cue &amp; Master sharing same audio device!
                     </div>

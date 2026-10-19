@@ -450,6 +450,7 @@
             isAudioDeckLoop = !isAudioDeckLoop;
             if (operatorAudioDeck) operatorAudioDeck.loop = isAudioDeckLoop;
             if (btnAudioDeckLoop) {
+                btnAudioDeckLoop.innerText = isAudioDeckLoop ? '🔁 Loop: ON' : '🔁 Loop: OFF';
                 btnAudioDeckLoop.style.color = isAudioDeckLoop ? 'var(--accent-cyan)' : '';
                 btnAudioDeckLoop.style.borderColor = isAudioDeckLoop ? 'rgba(0,229,255,0.4)' : '';
             }
