@@ -55,7 +55,13 @@
                 btnFTB.classList.toggle('active', false);
             }
 
-            pgmCueTitle.innerText = pgmCue.name;
+            const isHiddenVisual = !!(stageMediaPayload && stageMediaPayload.hideVisual);
+            const btnReveal = typeof document !== 'undefined' && document.getElementById ? document.getElementById('btnReveal') : null;
+            if (btnReveal) {
+                btnReveal.disabled = !isHiddenVisual;
+            }
+
+            pgmCueTitle.innerText = isHiddenVisual ? `${pgmCue.name} [🙈 ẨN HÌNH]` : pgmCue.name;
             pgmFrame.classList.add('is-live');
 
             // Hide empty hint if present
@@ -257,4 +263,20 @@
                 if (pgmEl) pgmEl.style.objectFit = currentScaling;
             });
         });
+
+        // REVEAL Button click handler (Lật hình video đang ẩn cho trò chơi đoán bài hát)
+        const btnReveal = typeof document !== 'undefined' && document.getElementById ? document.getElementById('btnReveal') : null;
+        if (btnReveal) {
+            btnReveal.addEventListener('click', () => {
+                if (btnReveal.disabled) return;
+                ipcRenderer.send('stage-control', 'REVEAL_VISUAL', { transition: currentTransition });
+                btnReveal.disabled = true;
+                if (pgmCue && pgmCueTitle) {
+                    pgmCueTitle.innerText = pgmCue.name;
+                }
+                if (typeof showOperatorToast === 'function') {
+                    showOperatorToast('✨ REVEAL: Đã hiện hình video trên sân khấu!', 'info', 2500);
+                }
+            });
+        }
 

@@ -119,6 +119,8 @@
         const watermarkOverlay = document.getElementById('watermarkOverlay');
         const tickerOverlay = document.getElementById('tickerOverlay');
         const tickerContent = document.getElementById('tickerContent');
+        const visualMaskLayer = document.getElementById('visualMaskLayer');
+        const visualMaskImg = document.getElementById('visualMaskImg');
 
         let activeDeckKey = 'A';
         let currentMedia = null;
@@ -131,6 +133,8 @@
         let isFrozen = false;
         let isSafeLogo = false;
         let safeLogoScaling = 'cover';
+        let isVisualHidden = false;
+        let lastFadeDurationMs = 800;
 
         function applySafeLogoScaling(mode = safeLogoScaling) {
             safeLogoScaling = mode;
@@ -345,6 +349,40 @@
             }
         }
 
+        // Resolve the mask image for a hidden-visual cue: per-cue image if it decodes, else event Key Visual
+        async function resolveMaskSrc(media) {
+            const fallbackSrc = safeLogoImg ? safeLogoImg.src : '';
+            if (!media || !media.maskImagePath) return fallbackSrc;
+            const candidateSrc = toMediaUrl(media.maskImagePath);
+            const probe = document.createElement('img');
+            const ok = await new Promise((resolve) => {
+                let settled = false;
+                const finish = (val) => { if (!settled) { settled = true; resolve(val); } };
+                probe.addEventListener('load', () => finish(true), { once: true });
+                probe.addEventListener('error', () => finish(false), { once: true });
+                setTimeout(() => finish(false), 600);
+                probe.src = candidateSrc;
+                if (typeof probe.decode === 'function') {
+                    probe.decode().then(() => finish(true), () => finish(false));
+                }
+            });
+            if (!ok) console.warn('Mask image failed, falling back to Key Visual:', media.maskImagePath);
+            return ok ? candidateSrc : fallbackSrc;
+        }
+
+        function setVisualMask(active, durationMs, src, scaling = 'cover') {
+            if (!visualMaskLayer) return;
+            visualMaskLayer.style.transitionDuration = `${durationMs}ms`;
+            if (active && visualMaskImg) {
+                if (src && visualMaskImg.src !== src) {
+                    visualMaskImg.src = src;
+                }
+                visualMaskImg.style.objectFit = scaling || 'cover';
+            }
+            if (active) visualMaskLayer.classList.add('active');
+            else visualMaskLayer.classList.remove('active');
+        }
+
         // GO LIVE Handler with Dual-Deck Crossfade & Pre-Roll
         ipcRenderer.on('stage-go-live', async (event, payload) => {
             console.log('Stage GO LIVE received:', payload);
@@ -415,6 +453,9 @@
             applyTransitionClass(outgoingDeck, transition);
 
             const fadeDurationMs = getTransitionDurationMs(transition);
+            const hideVisual = !!media.hideVisual;
+            const maskScaling = media.maskScaling || 'cover';
+            const maskSrc = hideVisual ? await resolveMaskSrc(media) : null;
             let mediaElement;
 
             if (media.type === 'video') {
@@ -622,7 +663,16 @@
                     return;
                 }
 
-                incomingDeck.classList.add('active');
+                // Hidden-visual cue: incoming deck NEVER becomes active until REVEAL (zero-frame leak)
+                if (hideVisual) {
+                    incomingDeck.classList.remove('active');
+                    setVisualMask(true, fadeDurationMs, maskSrc, maskScaling);
+                } else {
+                    incomingDeck.classList.add('active');
+                    if (isVisualHidden) setVisualMask(false, fadeDurationMs);
+                }
+                isVisualHidden = hideVisual;
+                lastFadeDurationMs = fadeDurationMs;
                 outgoingDeck.classList.remove('active');
 
                 // After crossfade completes, stop and cleanup outgoing deck
@@ -795,6 +845,24 @@
                     }
                     break;
 
+                case 'REVEAL_VISUAL': {
+                    // Lift the mask on a hidden-visual cue; video keeps playing without seek or restart
+                    if (!isVisualHidden) break;
+                    const revealDeck = decks[activeDeckKey];
+                    const revealMs = (data && data.transition) ? getTransitionDurationMs(data.transition) : lastFadeDurationMs;
+                    if (data && data.transition) applyTransitionClass(revealDeck, data.transition);
+                    revealDeck.classList.add('active');
+                    setVisualMask(false, revealMs);
+                    isVisualHidden = false;
+                    break;
+                }
+
+                case 'SET_MASK_SCALING':
+                    if (visualMaskImg && data && data.scaling) {
+                        visualMaskImg.style.objectFit = data.scaling;
+                    }
+                    break;
+
                 case 'TOGGLE_LOGO':
                 case 'UPDATE_LOGO':
                     if (data && data.logoPath) {
@@ -937,6 +1005,7 @@
                 isFTB: isFTB,
                 isFrozen: isFrozen,
                 isSafeLogo: isSafeLogo,
+                isVisualHidden: isVisualHidden,
                 scalingMode: scalingMode,
                 masterVolume: masterVolume,
                 isMuted: isMuted,

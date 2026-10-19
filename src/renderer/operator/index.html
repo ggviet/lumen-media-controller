@@ -63,6 +63,10 @@
                 <span>GO LIVE</span>
                 <span class="sub-key">[SPACE]</span>
             </button>
+            <button id="btnReveal" class="btn-panic btn-reveal" disabled title="Lật hình cho cue đang ẩn (đoán tên bài hát) [R]" aria-label="Hiện hình video đang ẩn trên sân khấu">
+                <span>REVEAL</span>
+                <span class="sub-key">[R]</span>
+            </button>
             <div class="action-divider"></div>
             <button id="btnSafeLogo" class="btn-panic btn-safe-logo">
                 <span>SAFE LOGO</span>
@@ -161,6 +165,16 @@
 
                         <!-- Right Controls: End Behavior Selector -->
                         <div class="pvw-ctrl-group pvw-ctrl-right">
+                            <button id="btnPvwHideVisual" class="btn-small pvw-btn btn-hide-visual" title="Ẩn hình trên sân khấu, chỉ phát tiếng (trò chơi đoán tên bài hát)" aria-label="Ẩn hình, chỉ phát tiếng" aria-pressed="false">🙈 Ẩn hình</button>
+                            <span id="pvwMaskImageGroup" class="pvw-mask-group" style="display:none;">
+                                <button id="btnPvwMaskImage" class="btn-small pvw-btn" title="Chọn ảnh hiển thị trên sân khấu khi đang ẩn hình (mặc định: Key Visual sự kiện)" aria-label="Chọn ảnh che">🖼 <span id="pvwMaskImageName">Key Visual</span></button>
+                                <button id="btnPvwMaskClear" class="btn-small pvw-btn" title="Bỏ ảnh riêng, dùng Key Visual sự kiện" aria-label="Bỏ ảnh che riêng" style="display:none;">✕</button>
+                                <select id="pvwMaskScalingSelect" class="btn-small pvw-select" title="Tỉ lệ hiển thị của ảnh che (Cover / Contain / Fill)" aria-label="Tỉ lệ ảnh che" style="height:28px; font-size:10px; padding:0 4px;">
+                                    <option value="cover">Cover (Lấp đầy)</option>
+                                    <option value="contain">Contain (Vừa khung)</option>
+                                    <option value="fill">Fill (Kéo giãn)</option>
+                                </select>
+                            </span>
                             <label for="pvwEndBehaviorSelect" class="micro-label" style="font-size:9px; color:var(--text-dim); margin-right:2px;">END:</label>
                             <select id="pvwEndBehaviorSelect" class="btn-small pvw-select" title="Hành vi khi kết thúc video" aria-label="Hành vi khi kết thúc video">
                                 <option value="HOLD_LAST_FRAME">Hold Frame Cuối</option>

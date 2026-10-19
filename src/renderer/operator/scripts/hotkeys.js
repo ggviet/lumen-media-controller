@@ -110,7 +110,7 @@
             // If inside a SELECT dropdown, single-letter panic hotkeys also take priority
             const isSelectPriorityKey = (
                 tagName === 'SELECT' &&
-                ['Space', 'KeyB', 'KeyF', 'KeyL', 'KeyT', 'KeyM', 'KeyP', 'KeyO', 'Numpad5', 'NumpadDecimal'].includes(code)
+                ['Space', 'KeyB', 'KeyF', 'KeyL', 'KeyT', 'KeyM', 'KeyP', 'KeyO', 'KeyR', 'Numpad5', 'NumpadDecimal'].includes(code)
             );
 
             if (isTextEntry) {
@@ -200,6 +200,14 @@
                     e.preventDefault();
                     btnFTB.click();
                     break;
+                case 'KeyR': {
+                    const btnRev = document.getElementById('btnReveal');
+                    if (btnRev && !btnRev.disabled) {
+                        e.preventDefault();
+                        btnRev.click();
+                    }
+                    break;
+                }
                 case 'KeyM':
                 case 'NumpadDivide':
                     e.preventDefault();

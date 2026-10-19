@@ -156,6 +156,82 @@
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 0 8px rgba(239, 68, 68, 0.8) !important;
         }
 
+        /* REVEAL Button for Hidden-Visual Cues */
+        .btn-reveal {
+            background: rgba(139, 92, 246, 0.12);
+            border-color: rgba(139, 92, 246, 0.4);
+            color: #a78bfa;
+            transition: all 0.2s ease;
+        }
+        .btn-reveal:not(:disabled) {
+            cursor: pointer;
+            background: rgba(139, 92, 246, 0.25);
+            border-color: #a855f7;
+            color: #e9d5ff;
+            animation: revealGlow 1.5s infinite alternate;
+        }
+        .btn-reveal:not(:disabled):hover {
+            background: rgba(139, 92, 246, 0.4);
+            border-color: #c084fc;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+        }
+        .btn-reveal:not(:disabled):active {
+            transform: translateY(1px);
+        }
+        @keyframes revealGlow {
+            0% { box-shadow: 0 0 4px rgba(168, 85, 247, 0.3); border-color: rgba(168, 85, 247, 0.6); }
+            100% { box-shadow: 0 0 12px rgba(168, 85, 247, 0.8); border-color: #c084fc; color: #ffffff; }
+        }
+        .btn-reveal:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            border-color: rgba(100, 116, 139, 0.3);
+            color: #64748b;
+        }
+
+        /* Hide-Visual (Audio Only on Stage) Controls */
+        .btn-hide-visual {
+            background: rgba(100, 116, 139, 0.15);
+            border: 1px solid rgba(100, 116, 139, 0.35);
+            color: var(--text-dim);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 0 8px;
+            height: 28px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+        .btn-hide-visual.active {
+            background: rgba(245, 158, 11, 0.2) !important;
+            border-color: #f59e0b !important;
+            color: #fbbf24 !important;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+        }
+        .pvw-mask-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+        .pvw-mask-group button {
+            height: 28px;
+            font-size: 10px;
+            padding: 0 6px;
+        }
+        .cue-badge-hidden-visual {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            font-size: 8px;
+            font-weight: 800;
+            padding: 1px 4px;
+            border-radius: 2px;
+            letter-spacing: 0.05em;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+
         /* 3-Column Workspace Responsive Grid */
         
 

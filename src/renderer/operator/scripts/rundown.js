@@ -279,6 +279,7 @@
                                 <span style="font-weight:700; font-family:'JetBrains Mono', Consolas, monospace; font-variant-numeric:tabular-nums lining-nums; color:var(--text-main); min-width:22px; flex-shrink:0;">#${idx + 1}</span>
                                 ${resTag}
                             </div>
+                            ${cue.hideVisual ? `<span class="cue-badge-hidden-visual" title="Ẩn hình trên sân khấu, chỉ phát tiếng">🙈 ẨN HÌNH</span>` : ''}
                             <span class="cue-behavior-tag ${cue.endBehavior === 'RETURN_TO_SAFE_LOGO' ? 'behavior-safe-logo' : ''}" title="${cue.endBehavior}">${
                                 cue.endBehavior === 'RETURN_TO_SAFE_LOGO' ? 'BACKDROP' :
                                 cue.endBehavior === 'HOLD_LAST_FRAME' ? 'HOLD' :
@@ -400,6 +401,41 @@
             }
             // Remove previous images and audio wraps but preserve pvwTickerOverlay and hints
             pvwContainer.querySelectorAll('img, .pvw-audio-wrap').forEach(el => el.remove());
+            updateHideVisualUi(null);
+        }
+
+        const btnPvwHideVisual = document.getElementById('btnPvwHideVisual');
+        const pvwMaskImageGroup = document.getElementById('pvwMaskImageGroup');
+        const btnPvwMaskImage = document.getElementById('btnPvwMaskImage');
+        const btnPvwMaskClear = document.getElementById('btnPvwMaskClear');
+        const pvwMaskImageName = document.getElementById('pvwMaskImageName');
+        const pvwMaskScalingSelect = document.getElementById('pvwMaskScalingSelect');
+
+        function updateHideVisualUi(cue) {
+            if (!btnPvwHideVisual) return;
+            const isVideo = cue && cue.type === 'video';
+            btnPvwHideVisual.style.display = isVideo ? 'inline-block' : 'none';
+            if (!isVideo) {
+                if (pvwMaskImageGroup) pvwMaskImageGroup.style.display = 'none';
+                return;
+            }
+            const isHidden = !!(cue && cue.hideVisual);
+            btnPvwHideVisual.classList.toggle('active', isHidden);
+            btnPvwHideVisual.setAttribute('aria-pressed', isHidden ? 'true' : 'false');
+            if (pvwMaskImageGroup) {
+                pvwMaskImageGroup.style.display = isHidden ? 'inline-flex' : 'none';
+            }
+            if (pvwMaskScalingSelect) {
+                pvwMaskScalingSelect.value = (cue && cue.maskScaling) ? cue.maskScaling : 'cover';
+            }
+            if (cue && cue.maskImagePath) {
+                const baseName = cue.maskImagePath.split(/[\\/]/).pop();
+                if (pvwMaskImageName) pvwMaskImageName.innerText = baseName.length > 12 ? baseName.slice(0, 10) + '…' : baseName;
+                if (btnPvwMaskClear) btnPvwMaskClear.style.display = 'inline-block';
+            } else {
+                if (pvwMaskImageName) pvwMaskImageName.innerText = 'Key Visual';
+                if (btnPvwMaskClear) btnPvwMaskClear.style.display = 'none';
+            }
         }
 
         // Load into PREVIEW
@@ -408,6 +444,7 @@
             pvwCueTitle.innerText = cue.name;
             pvwTypeTag.innerText = cue.type.toUpperCase();
             pvwEndBehaviorSelect.value = cue.endBehavior;
+            updateHideVisualUi(cue);
             document.getElementById('pvwFrame').classList.add('has-content');
             const pvwEmptyHint = document.getElementById('pvwEmptyHint');
             if (pvwEmptyHint) pvwEmptyHint.style.display = 'none';
@@ -696,6 +733,68 @@
             }
         });
 
+        if (btnPvwHideVisual) {
+            btnPvwHideVisual.addEventListener('click', () => {
+                if (!pvwCue || pvwCue.type !== 'video') return;
+                pvwCue.hideVisual = !pvwCue.hideVisual;
+                updateHideVisualUi(pvwCue);
+                renderRundown();
+                saveRundown();
+                if (typeof showOperatorToast === 'function') {
+                    showOperatorToast(pvwCue.hideVisual ? '🙈 Đã bật Ẩn hình (chỉ phát tiếng trên sân khấu)' : '👁️ Đã tắt Ẩn hình (phát video bình thường)', 'info', 2500);
+                }
+            });
+        }
+
+        if (btnPvwMaskImage) {
+            btnPvwMaskImage.addEventListener('click', async () => {
+                if (!pvwCue) return;
+                try {
+                    const filePaths = await ipcRenderer.invoke('open-file-dialog', {
+                        title: 'Chọn ảnh hiển thị trên sân khấu khi ẩn hình',
+                        properties: ['openFile'],
+                        filters: [
+                            { name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'svg', 'webp'] }
+                        ]
+                    });
+                    if (filePaths && filePaths.length > 0) {
+                        pvwCue.maskImagePath = filePaths[0];
+                        updateHideVisualUi(pvwCue);
+                        saveRundown();
+                        if (typeof showOperatorToast === 'function') {
+                            showOperatorToast(`🖼️ Đã gán ảnh che riêng cho câu hỏi: ${pvwCue.maskImagePath.split(/[\\/]/).pop()}`, 'info', 3000);
+                        }
+                    }
+                } catch (err) {
+                    console.warn('Failed to pick mask image:', err);
+                }
+            });
+        }
+
+        if (btnPvwMaskClear) {
+            btnPvwMaskClear.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!pvwCue) return;
+                pvwCue.maskImagePath = null;
+                updateHideVisualUi(pvwCue);
+                saveRundown();
+                if (typeof showOperatorToast === 'function') {
+                    showOperatorToast('🖼️ Đã quay về dùng Key Visual mặc định của sự kiện', 'info', 2000);
+                }
+            });
+        }
+
+        if (pvwMaskScalingSelect) {
+            pvwMaskScalingSelect.addEventListener('change', () => {
+                if (!pvwCue) return;
+                pvwCue.maskScaling = pvwMaskScalingSelect.value;
+                saveRundown();
+                if (pgmCue && pgmCue.id === pvwCue.id) {
+                    ipcRenderer.send('stage-control', 'SET_MASK_SCALING', { scaling: pvwCue.maskScaling });
+                }
+            });
+        }
+
         // Ingest File Paths (Validation & Background Extraction)
         async function ingestFilePaths(filePaths) {
             if (!Array.isArray(filePaths) || filePaths.length === 0) return;
@@ -983,7 +1082,10 @@
                 duration: c.duration,
                 width: c.width,
                 height: c.height,
-                endBehavior: c.endBehavior
+                endBehavior: c.endBehavior,
+                hideVisual: !!c.hideVisual,
+                maskImagePath: c.maskImagePath || null,
+                maskScaling: c.maskScaling || 'cover'
             }));
             try {
                 localStorage.setItem('lumen_rundown', JSON.stringify(cleanRundown));

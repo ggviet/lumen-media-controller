@@ -545,6 +545,11 @@
             btnFTB.classList.toggle('active', !!status.isFTB);
             btnFreeze.classList.toggle('active', !!status.isFrozen);
             btnSafeLogo.classList.toggle('active', !!status.isSafeLogo);
+
+            const btnRevealEl = document.getElementById('btnReveal');
+            if (btnRevealEl && status.isVisualHidden !== undefined) {
+                btnRevealEl.disabled = !status.isVisualHidden;
+            }
         });
 
         // Global Ergonomic Hotkeys
