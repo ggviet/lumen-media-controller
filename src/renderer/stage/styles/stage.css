@@ -135,64 +135,111 @@ html, body, #stageContainer, .media-deck, .stage-media-element, * {
             opacity: 0.85;
         }
 
-        /* Live Ticker Marquee Overlay - Pro Broadcast Crawl */
+        /* Premium Broadcast Live Ticker Marquee with Glassmorphism & GPU Acceleration */
         #tickerOverlay {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 64px;
-            background: rgba(10, 12, 16, 0.96);
-            border-top: 2px solid #00e5ff;
-            box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.1);
+            height: 72px;
+            background: linear-gradient(180deg, rgba(10, 14, 22, 0.82) 0%, rgba(4, 6, 10, 0.94) 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 2px solid transparent;
+            border-image: linear-gradient(90deg, rgba(0, 229, 255, 0.1) 0%, #00e5ff 25%, #38bdf8 75%, rgba(56, 189, 248, 0.1) 100%) 1;
+            box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             overflow: hidden;
             opacity: 0;
-            transform: translateY(100%);
+            transform: translate3d(0, 100%, 0);
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
             z-index: 70;
             pointer-events: none;
+            padding: 0 48px; /* Safe broadcast title margins against LED bezel & overscan */
         }
 
         #tickerOverlay.visible {
             opacity: 1;
-            transform: translateY(0);
+            transform: translate3d(0, 0, 0);
         }
 
         .ticker-badge {
-            background: #dc2626;
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
             color: #ffffff;
-            font-size: 0.95rem;
+            font-size: 1.05rem;
             font-weight: 800;
-            letter-spacing: 0.12em;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
             padding: 8px 18px;
-            margin-left: 24px;
-            border-radius: 2px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-right: 20px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
             flex-shrink: 0;
-            box-shadow: none;
+            box-shadow: 0 2px 10px rgba(220, 38, 38, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        .ticker-badge.badge-hot-news {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 2px 10px rgba(245, 158, 11, 0.4);
+        }
+
+        .ticker-badge.badge-welcome {
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+        }
+
+        .ticker-badge.badge-notice {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            box-shadow: 0 2px 10px rgba(59, 130, 246, 0.4);
+        }
+
+        .ticker-badge.badge-urgent {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            animation: urgentPulse 1.2s infinite;
+        }
+
+        @keyframes urgentPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(0.97); }
+        }
+
+        .ticker-badge.badge-hidden {
+            display: none !important;
         }
 
         .ticker-track {
             flex-grow: 1;
             overflow: hidden;
             white-space: nowrap;
+            mask-image: linear-gradient(90deg, transparent 0%, black 24px, black calc(100% - 24px), transparent 100%);
+            -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 24px, black calc(100% - 24px), transparent 100%);
         }
 
         .ticker-text {
             display: inline-block;
-            font-size: 1.45rem;
-            font-weight: 700;
+            font-size: 1.7rem;
+            font-weight: 800;
             color: #ffffff;
+            letter-spacing: 0.02em;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95), 0 0 2px #000;
             padding-left: 100%;
-            animation: marquee 24s linear infinite;
+            white-space: nowrap;
+            will-change: transform;
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
 
         @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-100%); }
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
         }
 
         /* Blackout & Fade To Black (FTB) Overlays */

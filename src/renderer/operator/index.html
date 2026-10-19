@@ -140,16 +140,14 @@
                         </div>
                     </div>
 
-                    <!-- Scrubber on Preview -->
-                    <div class="scrubber-wrap">
-                        <input type="range" id="pvwScrubber" class="scrubber-slider" min="0" max="100" value="0">
-                    </div>
-
                     <div class="mon-footer">
                         <div style="display:flex; align-items:center; gap:8px;">
                             <button id="btnPvwPlayPause" class="btn-small" style="padding: 2px 8px;">▶ Play</button>
                             <button id="btnCueAudio" class="btn-small" title="Nghe thử âm thanh qua tai nghe">🎧 Cue: OFF</button>
                             <span id="pvwTimeDisplay">00:00 / 00:00</span>
+                        </div>
+                        <div style="flex:1; max-width:140px; margin:0 8px; display:flex; align-items:center;">
+                            <input type="range" id="pvwScrubber" class="scrubber-slider" min="0" max="100" value="0" style="width:100%;">
                         </div>
                         <div style="display:flex; align-items:center; gap:8px;">
                             <span class="micro-label">END:</span>
@@ -336,9 +334,32 @@
                         <span>Live Ticker Marquee</span>
                     </div>
                     <div class="ticker-input-area">
-                        <span class="micro-label">Nội dung chữ chạy sự kiện:</span>
+                        <!-- Badge Preset & Customization Row -->
+                        <div style="display:flex; gap:6px; margin-bottom:6px; align-items:center;">
+                            <div style="flex:1;">
+                                <span class="micro-label" style="display:block; margin-bottom:2px;">Loại Nhãn (Badge):</span>
+                                <select id="tickerBadgeSelect" class="btn-small" style="width:100%; font-weight:700;">
+                                    <option value="THONG_BAO" data-badge-text="THÔNG BÁO" data-badge-class="">THÔNG BÁO (Tiêu chuẩn)</option>
+                                    <option value="HOT_NEWS" data-badge-text="HOT NEWS" data-badge-class="badge-hot-news">HOT NEWS (Cam)</option>
+                                    <option value="WELCOME" data-badge-text="WELCOME" data-badge-class="badge-welcome">WELCOME (Xanh lá)</option>
+                                    <option value="LUU_Y" data-badge-text="LƯU Ý" data-badge-class="badge-notice">LƯU Ý (Xanh dương)</option>
+                                    <option value="KHAN_CAP" data-badge-text="KHẨN CẤP" data-badge-class="badge-urgent">KHẨN CẤP (Đỏ nhấp nháy)</option>
+                                    <option value="NO_BADGE" data-badge-text="" data-badge-class="badge-hidden">KHÔNG HIỆN NHÃN (Chữ tràn viền)</option>
+                                    <option value="CUSTOM" data-badge-text="" data-badge-class="">TÙY CHỌN RIÊNG...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Custom Badge Text Field (Hidden by default, shown when CUSTOM is chosen) -->
+                        <div id="tickerCustomBadgeWrap" style="display:none; margin-bottom:6px;">
+                            <span class="micro-label" style="display:block; margin-bottom:2px;">Nội dung nhãn tùy biến:</span>
+                            <input type="text" id="tickerCustomBadgeInput" class="btn-small" placeholder="Ví dụ: XE BIỂN SỐ / VIP GUEST" style="width:100%; font-weight:700; text-transform:uppercase;">
+                        </div>
+
+                        <span class="micro-label" style="display:block; margin-bottom:2px;">Nội dung chữ chạy sự kiện:</span>
                         <textarea id="tickerInput" class="ticker-text-box" placeholder="Nhập nội dung chữ chạy sự kiện... (Ví dụ: Chào mừng đại biểu tham dự Tech Summit 2026)"></textarea>
-                        <div class="ticker-btns" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">
+                        
+                        <div class="ticker-btns" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">
                             <button id="btnPreviewTicker" class="btn-small" style="border-color:var(--pvw-green); color:var(--pvw-green); font-weight:700;">👁️ PREVIEW (PVW)</button>
                             <button id="btnPushTicker" class="btn-small" style="background:var(--accent-blue); color:#000; font-weight:700;">PUSH LIVE (PGM)</button>
                             <button id="btnHideTicker" class="btn-small">HIDE</button>

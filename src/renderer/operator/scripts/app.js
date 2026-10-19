@@ -109,7 +109,36 @@
             ipcRenderer.send('stage-control', 'TOGGLE_LOGO');
         });
 
-        function showPgmTicker(text) {
+        // Helper: Resolve active badge configuration (Preset or Custom)
+        const tickerBadgeSelect = document.getElementById('tickerBadgeSelect');
+        const tickerCustomBadgeWrap = document.getElementById('tickerCustomBadgeWrap');
+        const tickerCustomBadgeInput = document.getElementById('tickerCustomBadgeInput');
+
+        if (tickerBadgeSelect) {
+            tickerBadgeSelect.addEventListener('change', () => {
+                if (tickerCustomBadgeWrap) {
+                    tickerCustomBadgeWrap.style.display = tickerBadgeSelect.value === 'CUSTOM' ? 'block' : 'none';
+                }
+            });
+        }
+
+        function getTickerBadgeConfig() {
+            if (!tickerBadgeSelect) return { badgeText: 'THÔNG BÁO', badgeClass: '' };
+            const val = tickerBadgeSelect.value;
+            const opt = tickerBadgeSelect.selectedOptions[0];
+            if (val === 'CUSTOM') {
+                const customTxt = (tickerCustomBadgeInput ? tickerCustomBadgeInput.value : '').trim().toUpperCase() || 'THÔNG BÁO';
+                return { badgeText: customTxt, badgeClass: '' };
+            }
+            if (val === 'NO_BADGE') {
+                return { badgeText: '', badgeClass: 'badge-hidden' };
+            }
+            const badgeText = opt ? opt.getAttribute('data-badge-text') || 'THÔNG BÁO' : 'THÔNG BÁO';
+            const badgeClass = opt ? opt.getAttribute('data-badge-class') || '' : '';
+            return { badgeText, badgeClass };
+        }
+
+        function showPgmTicker(text, badgeConfig = null) {
             const pgmTickerOverlay = document.getElementById('pgmTickerOverlay');
             const pgmTickerContent = document.getElementById('pgmTickerContent');
             if (pgmTickerOverlay && pgmTickerContent) {
@@ -118,6 +147,18 @@
                     hidePgmTicker();
                     return;
                 }
+                const cfg = badgeConfig || getTickerBadgeConfig();
+                const badgeEl = pgmTickerOverlay.querySelector('.pgm-ticker-badge');
+                if (badgeEl) {
+                    if (cfg.badgeClass === 'badge-hidden') {
+                        badgeEl.className = 'pgm-ticker-badge badge-hidden';
+                        badgeEl.innerText = '';
+                    } else {
+                        badgeEl.className = `pgm-ticker-badge ${cfg.badgeClass}`.trim();
+                        badgeEl.innerText = cfg.badgeText || 'THÔNG BÁO';
+                    }
+                }
+
                 const durationSec = Math.max(10, Math.min(45, Math.round(cleanText.length * 0.2)));
                 pgmTickerContent.innerText = cleanText;
                 pgmTickerContent.style.animation = 'none';
@@ -135,14 +176,32 @@
             });
         }
 
-        // Preview Ticker Overlay Support
-        function showPvwTicker(text) {
+        // Preview Ticker Overlay Support with Badge Options
+        function showPvwTicker(text, badgeConfig = null) {
             const pvwTickerOverlay = document.getElementById('pvwTickerOverlay');
             const pvwTickerContent = document.getElementById('pvwTickerContent');
             if (pvwTickerOverlay && pvwTickerContent) {
+                const cfg = badgeConfig || getTickerBadgeConfig();
+                const badgeEl = pvwTickerOverlay.querySelector('.pgm-ticker-badge');
+                if (badgeEl) {
+                    if (cfg.badgeClass === 'badge-hidden') {
+                        badgeEl.className = 'pgm-ticker-badge badge-hidden';
+                        badgeEl.innerText = '';
+                    } else {
+                        badgeEl.className = `pgm-ticker-badge ${cfg.badgeClass}`.trim();
+                        badgeEl.innerText = cfg.badgeText || 'THÔNG BÁO';
+                        // For PVW, retain distinct green border/accent if not overridden
+                        if (!cfg.badgeClass) {
+                            badgeEl.style.background = '#059669';
+                        } else {
+                            badgeEl.style.background = '';
+                        }
+                    }
+                }
+
                 pvwTickerContent.innerText = text;
                 const charCount = text.length;
-                const durationSec = Math.max(12, Math.min(60, Math.round(charCount / 2.5)));
+                const durationSec = Math.max(5, Math.min(25, Math.round(charCount * 0.25)));
                 pvwTickerContent.style.animation = 'none';
                 void pvwTickerContent.offsetWidth; // Force CSS reflow
                 pvwTickerContent.style.animation = `marquee ${durationSec}s linear infinite`;
@@ -174,8 +233,13 @@
         btnPushTicker.addEventListener('click', () => {
             const txt = tickerInput.value.trim().slice(0, 1000);
             if (txt) {
-                ipcRenderer.send('stage-control', 'UPDATE_TICKER', { text: txt });
-                showPgmTicker(txt);
+                const badgeCfg = getTickerBadgeConfig();
+                ipcRenderer.send('stage-control', 'UPDATE_TICKER', { 
+                    text: txt,
+                    badgeText: badgeCfg.badgeText,
+                    badgeClass: badgeCfg.badgeClass
+                });
+                showPgmTicker(txt, badgeCfg);
                 btnPushTicker.style.background = 'var(--pvw-green)';
             } else {
                 ipcRenderer.send('stage-control', 'HIDE_TICKER');

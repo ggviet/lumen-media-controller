@@ -728,6 +728,18 @@
                             tickerOverlay.classList.remove('visible');
                             break;
                         }
+                        const badgeEl = tickerOverlay.querySelector('.ticker-badge');
+                        if (badgeEl) {
+                            if (data.badgeClass === 'badge-hidden') {
+                                badgeEl.className = 'ticker-badge badge-hidden';
+                                badgeEl.innerText = '';
+                            } else {
+                                const badgeClass = data.badgeClass || '';
+                                badgeEl.className = `ticker-badge ${badgeClass}`.trim();
+                                badgeEl.innerText = data.badgeText || 'THÔNG BÁO';
+                            }
+                        }
+
                         const durationSec = Math.max(14, Math.min(60, Math.round(cleanText.length * 0.28)));
                         tickerContent.innerText = cleanText;
                         tickerContent.style.animation = 'none';
