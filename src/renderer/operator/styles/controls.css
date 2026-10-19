@@ -521,6 +521,24 @@
             display: flex;
             flex-direction: column;
             overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .col-settings::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .col-settings::-webkit-scrollbar-track {
+            background: #080a0e;
+        }
+
+        .col-settings::-webkit-scrollbar-thumb {
+            background: #262e40;
+            border-radius: 2px;
+        }
+
+        .col-settings::-webkit-scrollbar-thumb:hover {
+            background: #3b465c;
         }
 
         .settings-block {

@@ -427,9 +427,9 @@
                         </div>
                     </div>
                     <!-- Safe Logo Aspect Scaling Row -->
-                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px;">
-                        <label for="safeLogoScalingSelect" class="micro-label" style="white-space:nowrap;">Tỉ lệ hiển thị (Aspect Scaling):</label>
-                        <select id="safeLogoScalingSelect" class="btn-small" style="font-size:10px; font-weight:700; flex:1;" aria-label="Tỉ lệ hiển thị Safe Logo">
+                    <div style="display:flex; flex-direction:column; gap:4px; margin-top:8px;">
+                        <label for="safeLogoScalingSelect" class="micro-label">Tỉ lệ hiển thị (Aspect Scaling):</label>
+                        <select id="safeLogoScalingSelect" class="btn-small" style="font-size:10px; font-weight:700; width:100%;" aria-label="Tỉ lệ hiển thị Safe Logo">
                             <option value="cover" selected>Cover (Tràn viền màn hình LED)</option>
                             <option value="contain">Contain (Vừa khung - Giữ trọn ảnh)</option>
                             <option value="fill">Stretch (Kéo giãn theo màn hình)</option>
@@ -437,7 +437,7 @@
                         </select>
                     </div>
 
-                    <p style="font-size:10px; color:var(--text-dim); margin-top:6px;">Khi kích hoạt <strong>SAFE LOGO (F1)</strong> trên thanh điều khiển khẩn cấp, hình ảnh Key Visual này sẽ ngay lập tức bao phủ toàn màn hình sân khấu theo tỉ lệ đã chọn.</p>
+                    <p style="font-size:10px; color:var(--text-dim); margin-top:4px; line-height:1.4;">Khi kích hoạt <strong>SAFE LOGO (F1)</strong> hoặc video kết thúc, Key Visual này sẽ bao phủ sân khấu theo tỉ lệ đã chọn.</p>
                 </div>
 
                 <!-- Ticker Control -->
@@ -471,10 +471,10 @@
                         <label for="tickerInput" class="micro-label" style="display:block; margin-bottom:2px;">Nội dung chữ chạy sự kiện:</label>
                         <textarea id="tickerInput" class="ticker-text-box" placeholder="Nhập nội dung chữ chạy sự kiện… (Ví dụ: Chào mừng đại biểu tham dự Tech Summit 2026)" aria-label="Nội dung chữ chạy sự kiện"></textarea>
                         
-                        <div class="ticker-btns" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">
-                            <button id="btnPreviewTicker" class="btn-small btn-icon-label" style="height:28px; border-color:var(--pvw-green); color:var(--pvw-green); font-weight:700;" aria-label="Xem trước Ticker trên Preview"><svg class="icon-svg sm" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> PREVIEW (PVW)</button>
-                            <button id="btnPushTicker" class="btn-small btn-icon-label" style="height:28px; background:var(--accent-blue); color:#000; font-weight:700;" aria-label="Đẩy Ticker lên sóng Program Live"><svg class="icon-svg sm" viewBox="0 0 24 24"><polyline points="13 17 18 12 13 7"></polyline><polyline points="6 17 11 12 6 7"></polyline></svg> PUSH LIVE (PGM)</button>
-                            <button id="btnHideTicker" class="btn-small" style="height:28px;" aria-label="Ẩn thanh Ticker">HIDE</button>
+                        <div class="ticker-btns" style="display:grid; grid-template-columns:1fr 1fr 60px; gap:6px; margin-top:8px;">
+                            <button id="btnPreviewTicker" class="btn-small btn-icon-label" style="height:28px; border-color:var(--pvw-green); color:var(--pvw-green); font-weight:700; padding:0 4px; font-size:10px;" aria-label="Xem trước Ticker trên Preview"><svg class="icon-svg sm" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> PREVIEW</button>
+                            <button id="btnPushTicker" class="btn-small btn-icon-label" style="height:28px; background:var(--accent-blue); color:#000; font-weight:700; padding:0 4px; font-size:10px;" aria-label="Đẩy Ticker lên sóng Program Live"><svg class="icon-svg sm" viewBox="0 0 24 24"><polyline points="13 17 18 12 13 7"></polyline><polyline points="6 17 11 12 6 7"></polyline></svg> PUSH LIVE</button>
+                            <button id="btnHideTicker" class="btn-small" style="height:28px; padding:0 4px; font-size:10px;" aria-label="Ẩn thanh Ticker">HIDE</button>
                         </div>
                     </div>
                 </div>
