@@ -16,9 +16,11 @@
             if (!canExecutePanicAction('SAFE_LOGO')) return;
             btnSafeLogo.classList.toggle('active');
             const customSafePath = window.customSafeLogoPath || localStorage.getItem('lumen_custom_safelogo_path');
+            const customSafeScaling = window.customSafeLogoScaling || localStorage.getItem('lumen_safelogo_scaling') || 'cover';
             const defaultPath = path.join(resolveOperatorAssetDir(), 'sample_keyvisual.svg');
             ipcRenderer.send('stage-control', 'SAFE_LOGO', {
-                logoPath: customSafePath || defaultPath
+                logoPath: customSafePath || defaultPath,
+                scaling: customSafeScaling
             });
         });
 

@@ -29,10 +29,14 @@
 
             const hasIndependentAudioTrack = isAudioCue || hasPairedAudio || isAudioPlaying;
 
+            const defaultSafePath = typeof resolveOperatorAssetDir === 'function' ? path.join(resolveOperatorAssetDir(), 'sample_keyvisual.svg') : 'sample_keyvisual.svg';
+            const winCustomPath = (typeof window !== 'undefined' && window) ? window.customSafeLogoPath : null;
+            const storageCustomPath = (typeof localStorage !== 'undefined' && localStorage) ? localStorage.getItem('lumen_custom_safelogo_path') : null;
+            const activeSafePath = winCustomPath || storageCustomPath || defaultSafePath;
             const stageMediaPayload = isAudioCue ? {
                 ...pgmCue,
                 isAudioFallback: true,
-                path: typeof resolveOperatorAssetDir === 'function' ? path.join(resolveOperatorAssetDir(), 'sample_keyvisual.svg') : 'sample_keyvisual.svg'
+                path: activeSafePath
             } : pgmCue;
 
             // Send IPC to Stage Window
@@ -113,8 +117,11 @@
                     }
                 } else if (pgmCue.type === 'audio') {
                     newEl = document.createElement('img');
-                    const kvSrc = typeof resolveOperatorAssetDir === 'function' ? toMediaUrl(path.join(resolveOperatorAssetDir(), 'sample_keyvisual.svg')) : '../../../assets/sample_keyvisual.svg';
-                    newEl.src = kvSrc;
+                    const defaultSafePath = typeof resolveOperatorAssetDir === 'function' ? path.join(resolveOperatorAssetDir(), 'sample_keyvisual.svg') : '../../../assets/sample_keyvisual.svg';
+                    const winCustomPath = (typeof window !== 'undefined' && window) ? window.customSafeLogoPath : null;
+                    const storageCustomPath = (typeof localStorage !== 'undefined' && localStorage) ? localStorage.getItem('lumen_custom_safelogo_path') : null;
+                    const activeSafePath = winCustomPath || storageCustomPath || defaultSafePath;
+                    newEl.src = toMediaUrl(activeSafePath);
                     newEl.className = 'stage-media-element';
                     newEl.style.objectFit = currentScaling;
                     const dur = pgmCue.duration || 0;
@@ -188,8 +195,11 @@
                     pgmContainer.appendChild(vid);
                 } else if (pgmCue.type === 'audio') {
                     const img = document.createElement('img');
-                    const kvSrc = typeof resolveOperatorAssetDir === 'function' ? toMediaUrl(path.join(resolveOperatorAssetDir(), 'sample_keyvisual.svg')) : '../../../assets/sample_keyvisual.svg';
-                    img.src = kvSrc;
+                    const defaultSafePath = typeof resolveOperatorAssetDir === 'function' ? path.join(resolveOperatorAssetDir(), 'sample_keyvisual.svg') : '../../../assets/sample_keyvisual.svg';
+                    const winCustomPath = (typeof window !== 'undefined' && window) ? window.customSafeLogoPath : null;
+                    const storageCustomPath = (typeof localStorage !== 'undefined' && localStorage) ? localStorage.getItem('lumen_custom_safelogo_path') : null;
+                    const activeSafePath = winCustomPath || storageCustomPath || defaultSafePath;
+                    img.src = toMediaUrl(activeSafePath);
                     img.className = 'stage-media-element';
                     img.style.objectFit = currentScaling;
                     pgmContainer.appendChild(img);
@@ -213,21 +223,31 @@
 
         btnGoLive.addEventListener('click', triggerGoLive);
 
-        // Transition Buttons
+        // Transition Buttons: Initialize saved state & click listener
         document.querySelectorAll('.btn-trans').forEach(btn => {
+            if (btn.dataset.trans === currentTransition) {
+                document.querySelectorAll('.btn-trans').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.btn-trans').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentTransition = btn.dataset.trans;
+                localStorage.setItem('lumen_current_transition', currentTransition);
             });
         });
 
-        // Scaling Buttons
+        // Scaling Buttons: Initialize saved state & click listener
         document.querySelectorAll('.btn-scale').forEach(btn => {
+            if (btn.dataset.scale === currentScaling) {
+                document.querySelectorAll('.btn-scale').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.btn-scale').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentScaling = btn.dataset.scale;
+                localStorage.setItem('lumen_aspect_scaling', currentScaling);
                 ipcRenderer.send('stage-control', 'SET_SCALING', { scaling: currentScaling });
                 
                 // Update local previews

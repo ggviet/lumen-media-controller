@@ -2,13 +2,42 @@
         const { ipcRenderer } = require('electron');
         const path = require('path');
 
+        function resolveOperatorAssetDir() {
+            try {
+                const fs = require('fs');
+                if (process.resourcesPath) {
+                    const pkgAssets = path.join(process.resourcesPath, 'assets');
+                    if (fs.existsSync(pkgAssets)) return pkgAssets;
+                }
+            } catch (_) {}
+            return path.join(__dirname, '../../../assets');
+        }
+        window.resolveOperatorAssetDir = resolveOperatorAssetDir;
+
+        function toMediaUrl(filePath) {
+            if (!filePath || typeof filePath !== 'string') return '';
+            if (filePath.startsWith('file://') || filePath.startsWith('data:') || filePath.startsWith('blob:') || filePath.startsWith('http://') || filePath.startsWith('https://')) {
+                return filePath;
+            }
+            try {
+                const urlMod = typeof require === 'function' ? require('url') : null;
+                if (urlMod && typeof urlMod.pathToFileURL === 'function') {
+                    return urlMod.pathToFileURL(filePath).href;
+                }
+            } catch (_) {}
+            let normalized = filePath.replace(/\\/g, '/');
+            if (!normalized.startsWith('/')) normalized = '/' + normalized;
+            return 'file://' + encodeURI(normalized).replace(/#/g, '%23').replace(/\?/g, '%3F');
+        }
+        window.toMediaUrl = toMediaUrl;
+
         // State variables
         let rundown = [];
         let selectedIndex = -1;
         let pvwCue = null;
         let pgmCue = null;
-        let currentTransition = 'normal';
-        let currentScaling = 'contain';
+        let currentTransition = localStorage.getItem('lumen_current_transition') || 'normal';
+        let currentScaling = localStorage.getItem('lumen_aspect_scaling') || 'contain';
         let isMasterMuted = false;
         let watermarkVisible = false;
         let isCueAudioOn = false;
@@ -129,7 +158,7 @@
                     watermarkFileName.title = customWatermarkPath;
                 }
             } else {
-                if (watermarkPreviewThumb) watermarkPreviewThumb.src = '../../assets/logo.svg';
+                if (watermarkPreviewThumb) watermarkPreviewThumb.src = toMediaUrl(path.join(resolveOperatorAssetDir(), 'logo.svg'));
                 if (watermarkFileName) {
                     watermarkFileName.textContent = 'logo.svg (Mặc định)';
                     watermarkFileName.title = 'logo.svg (Mặc định)';
@@ -224,10 +253,21 @@
         const safeLogoPreviewThumb = document.getElementById('safeLogoPreviewThumb');
         const safeLogoFileName = document.getElementById('safeLogoFileName');
         const btnSelectSafeLogo = document.getElementById('btnSelectSafeLogo');
-        const btnResetSafeLogo = document.getElementById('btnResetSafeLogo');
+        const safeLogoScalingSelect = document.getElementById('safeLogoScalingSelect');
+        let customSafeLogoScaling = localStorage.getItem('lumen_safelogo_scaling') || 'cover';
+        window.customSafeLogoScaling = customSafeLogoScaling;
 
         let customSafeLogoPath = localStorage.getItem('lumen_custom_safelogo_path') || '';
         window.customSafeLogoPath = customSafeLogoPath;
+
+        function syncSafeLogoToStage() {
+            const defaultPath = path.join(resolveOperatorAssetDir(), 'sample_keyvisual.svg');
+            const targetPath = customSafeLogoPath || defaultPath;
+            ipcRenderer.send('stage-control', 'SET_SAFELOGO_IMAGE', {
+                logoPath: targetPath,
+                scaling: customSafeLogoScaling
+            });
+        }
 
         function updateSafeLogoDisplay() {
             if (customSafeLogoPath) {
@@ -238,7 +278,7 @@
                     safeLogoFileName.title = customSafeLogoPath;
                 }
             } else {
-                if (safeLogoPreviewThumb) safeLogoPreviewThumb.src = '../../assets/sample_keyvisual.svg';
+                if (safeLogoPreviewThumb) safeLogoPreviewThumb.src = toMediaUrl(path.join(resolveOperatorAssetDir(), 'sample_keyvisual.svg'));
                 if (safeLogoFileName) {
                     safeLogoFileName.textContent = 'sample_keyvisual.svg (Mặc định)';
                     safeLogoFileName.title = 'sample_keyvisual.svg (Mặc định)';
@@ -246,6 +286,7 @@
             }
         }
         updateSafeLogoDisplay();
+        syncSafeLogoToStage();
 
         if (btnSelectSafeLogo) {
             btnSelectSafeLogo.addEventListener('click', async () => {
@@ -262,6 +303,7 @@
                         window.customSafeLogoPath = customSafeLogoPath;
                         localStorage.setItem('lumen_custom_safelogo_path', customSafeLogoPath);
                         updateSafeLogoDisplay();
+                        syncSafeLogoToStage();
                         if (typeof showOperatorToast === 'function') {
                             showOperatorToast(`Đã cập nhật ảnh nền Safe Logo / KV sự kiện!`, 'info');
                         }
@@ -278,9 +320,25 @@
                 window.customSafeLogoPath = '';
                 localStorage.removeItem('lumen_custom_safelogo_path');
                 updateSafeLogoDisplay();
+                syncSafeLogoToStage();
                 if (typeof showOperatorToast === 'function') {
                     showOperatorToast('Đã khôi phục Key Visual mặc định', 'info');
                 }
+            });
+        }
+
+        if (safeLogoScalingSelect) {
+            safeLogoScalingSelect.value = customSafeLogoScaling;
+            ipcRenderer.send('stage-control', 'SET_SAFELOGO_SCALING', {
+                scaling: customSafeLogoScaling
+            });
+            safeLogoScalingSelect.addEventListener('change', () => {
+                customSafeLogoScaling = safeLogoScalingSelect.value;
+                window.customSafeLogoScaling = customSafeLogoScaling;
+                localStorage.setItem('lumen_safelogo_scaling', customSafeLogoScaling);
+                ipcRenderer.send('stage-control', 'SET_SAFELOGO_SCALING', {
+                    scaling: customSafeLogoScaling
+                });
             });
         }
 
@@ -465,9 +523,14 @@
                         const nextCue = rundown[currentPgmIdx + 1];
                         triggerGoLive(nextCue);
                     }
+                } else if (endBehavior === 'RETURN_TO_SAFE_LOGO') {
+                    if (btnSafeLogo) btnSafeLogo.classList.add('active');
                 }
                 if (status.isFTB !== undefined) {
                     btnFTB.classList.toggle('active', !!status.isFTB);
+                }
+                if (status.isSafeLogo !== undefined) {
+                    btnSafeLogo.classList.toggle('active', !!status.isSafeLogo);
                 }
                 return;
             }

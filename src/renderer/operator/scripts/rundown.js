@@ -279,7 +279,12 @@
                                 <span style="font-weight:700; font-family:'JetBrains Mono', Consolas, monospace; font-variant-numeric:tabular-nums lining-nums; color:var(--text-main); min-width:22px; flex-shrink:0;">#${idx + 1}</span>
                                 ${resTag}
                             </div>
-                            <span class="cue-behavior-tag">${cue.endBehavior}</span>
+                            <span class="cue-behavior-tag ${cue.endBehavior === 'RETURN_TO_SAFE_LOGO' ? 'behavior-safe-logo' : ''}" title="${cue.endBehavior}">${
+                                cue.endBehavior === 'RETURN_TO_SAFE_LOGO' ? 'BACKDROP' :
+                                cue.endBehavior === 'HOLD_LAST_FRAME' ? 'HOLD' :
+                                cue.endBehavior === 'FADE_TO_BLACK' ? 'FTB' :
+                                cue.endBehavior || 'HOLD'
+                            }</span>
                         </div>
                     </div>
                 `;
@@ -687,6 +692,7 @@
             if (pvwCue) {
                 pvwCue.endBehavior = pvwEndBehaviorSelect.value;
                 renderRundown();
+                saveRundown();
             }
         });
 

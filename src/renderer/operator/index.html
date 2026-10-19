@@ -164,6 +164,7 @@
                             <label for="pvwEndBehaviorSelect" class="micro-label" style="font-size:9px; color:var(--text-dim); margin-right:2px;">END:</label>
                             <select id="pvwEndBehaviorSelect" class="btn-small pvw-select" title="Hành vi khi kết thúc video" aria-label="Hành vi khi kết thúc video">
                                 <option value="HOLD_LAST_FRAME">Hold Frame Cuối</option>
+                                <option value="RETURN_TO_SAFE_LOGO">Về nền sự kiện (Safe Logo)</option>
                                 <option value="LOOP">Lặp Vô Tận (Loop)</option>
                                 <option value="AUTO_NEXT">Auto Next</option>
                                 <option value="FADE_TO_BLACK">Fade To Black</option>
@@ -369,7 +370,7 @@
                     <!-- Watermark File & Preview Row -->
                     <div style="display:flex; align-items:center; gap:8px; margin-top:8px; padding:6px; background:#05070a; border-radius:var(--radius-micro); border:1px solid #1a202c;">
                         <div id="watermarkThumbWrap" style="width:40px; height:40px; display:flex; align-items:center; justify-content:center; background:#0b0f17; border:1px solid var(--border-color); border-radius:3px; overflow:hidden; flex-shrink:0;">
-                            <img id="watermarkPreviewThumb" src="../../assets/logo.svg" alt="Logo Thumb" style="max-width:100%; max-height:100%; object-fit:contain;">
+                            <img id="watermarkPreviewThumb" src="../../../assets/logo.svg" alt="Logo Thumb" style="max-width:100%; max-height:100%; object-fit:contain;">
                         </div>
                         <div style="flex:1; min-width:0;">
                             <div id="watermarkFileName" style="font-size:11px; font-weight:700; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="logo.svg (Mặc định)">logo.svg (Mặc định)</div>
@@ -414,7 +415,7 @@
                     <!-- Safe Logo File & Preview Row -->
                     <div style="display:flex; align-items:center; gap:8px; margin-top:8px; padding:6px; background:#05070a; border-radius:var(--radius-micro); border:1px solid #1a202c;">
                         <div id="safeLogoThumbWrap" style="width:56px; height:36px; display:flex; align-items:center; justify-content:center; background:#0b0f17; border:1px solid var(--border-color); border-radius:3px; overflow:hidden; flex-shrink:0;">
-                            <img id="safeLogoPreviewThumb" src="../../assets/sample_keyvisual.svg" alt="Safe Backdrop Thumb" style="width:100%; height:100%; object-fit:cover;">
+                            <img id="safeLogoPreviewThumb" src="../../../assets/sample_keyvisual.svg" alt="Safe Backdrop Thumb" style="width:100%; height:100%; object-fit:cover;">
                         </div>
                         <div style="flex:1; min-width:0;">
                             <div id="safeLogoFileName" style="font-size:11px; font-weight:700; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="sample_keyvisual.svg (Mặc định)">sample_keyvisual.svg (Mặc định)</div>
@@ -425,7 +426,18 @@
                             <button id="btnResetSafeLogo" class="btn-small" style="height:20px; padding:0 6px; font-size:9px; color:var(--text-dim);" title="Khôi phục nền mặc định">Mặc định</button>
                         </div>
                     </div>
-                    <p style="font-size:10px; color:var(--text-dim); margin-top:6px;">Khi kích hoạt <strong>SAFE LOGO (F1)</strong> trên thanh điều khiển khẩn cấp, hình ảnh Key Visual này sẽ ngay lập tức bao phủ toàn màn hình sân khấu.</p>
+                    <!-- Safe Logo Aspect Scaling Row -->
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px;">
+                        <label for="safeLogoScalingSelect" class="micro-label" style="white-space:nowrap;">Tỉ lệ hiển thị (Aspect Scaling):</label>
+                        <select id="safeLogoScalingSelect" class="btn-small" style="font-size:10px; font-weight:700; flex:1;" aria-label="Tỉ lệ hiển thị Safe Logo">
+                            <option value="cover" selected>Cover (Tràn viền màn hình LED)</option>
+                            <option value="contain">Contain (Vừa khung - Giữ trọn ảnh)</option>
+                            <option value="fill">Stretch (Kéo giãn theo màn hình)</option>
+                            <option value="auto">Theo Master (Đồng bộ Scaling chính)</option>
+                        </select>
+                    </div>
+
+                    <p style="font-size:10px; color:var(--text-dim); margin-top:6px;">Khi kích hoạt <strong>SAFE LOGO (F1)</strong> trên thanh điều khiển khẩn cấp, hình ảnh Key Visual này sẽ ngay lập tức bao phủ toàn màn hình sân khấu theo tỉ lệ đã chọn.</p>
                 </div>
 
                 <!-- Ticker Control -->

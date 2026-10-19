@@ -130,6 +130,16 @@
         let isFTB = false;
         let isFrozen = false;
         let isSafeLogo = false;
+        let safeLogoScaling = 'cover';
+
+        function applySafeLogoScaling(mode = safeLogoScaling) {
+            safeLogoScaling = mode;
+            if (safeLogoImg) {
+                const targetFit = (mode === 'auto') ? scalingMode : mode;
+                safeLogoImg.style.objectFit = targetFit;
+            }
+        }
+        applySafeLogoScaling();
 
         // Transition management & audio crossfade state
         let cleanupTimeoutId = null;
@@ -497,6 +507,18 @@
                                     isFTB: true
                                 });
                             }
+                        } else if (endBehavior === 'RETURN_TO_SAFE_LOGO') {
+                            safeLogoLayer.classList.add('active');
+                            isSafeLogo = true;
+                            mediaElement.pause();
+                            ipcRenderer.send('stage-status', {
+                                event: 'media-ended',
+                                id: media.id,
+                                cueId: media.id,
+                                endBehavior: 'RETURN_TO_SAFE_LOGO',
+                                isFTB: false,
+                                isSafeLogo: true
+                            });
                         } else if (endBehavior === 'AUTO_NEXT') {
                             mediaElement.pause();
                             ipcRenderer.send('stage-status', {
@@ -760,6 +782,9 @@
                     } else {
                         isSafeLogo = !isSafeLogo;
                     }
+                    if (data && data.scaling) {
+                        applySafeLogoScaling(data.scaling);
+                    }
                     if (data && data.logoPath) {
                         safeLogoImg.src = toMediaUrl(data.logoPath);
                     }
@@ -862,6 +887,24 @@
                         scalingMode = data.scaling;
                         const allMedia = document.querySelectorAll('.stage-media-element');
                         allMedia.forEach(el => el.style.objectFit = scalingMode);
+                        if (safeLogoScaling === 'auto') {
+                            applySafeLogoScaling('auto');
+                        }
+                    }
+                    break;
+
+                case 'SET_SAFELOGO_SCALING':
+                    if (data && data.scaling) {
+                        applySafeLogoScaling(data.scaling);
+                    }
+                    break;
+
+                case 'SET_SAFELOGO_IMAGE':
+                    if (data && data.logoPath) {
+                        safeLogoImg.src = toMediaUrl(data.logoPath);
+                    }
+                    if (data && data.scaling) {
+                        applySafeLogoScaling(data.scaling);
                     }
                     break;
 

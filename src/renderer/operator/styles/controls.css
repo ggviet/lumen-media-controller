@@ -498,6 +498,12 @@
             flex-shrink: 0;
         }
 
+        .cue-behavior-tag.behavior-safe-logo {
+            background: rgba(30, 41, 59, 0.8);
+            border-color: rgba(56, 189, 248, 0.4);
+            color: var(--accent-cyan);
+        }
+
         .rundown-actions {
             padding: 10px;
             border-top: 1px solid var(--border-color);
