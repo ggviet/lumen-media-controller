@@ -188,12 +188,48 @@
             return true;
         }
 
-        // Rundown Rendering with HTML5 Drag-and-Drop Card Support
+        // Rundown Rendering with HTML5 Drag-and-Drop Card Support & Search Filtering
+        let cueSearchFilter = '';
+
+        const cueSearchInput = document.getElementById('cueSearchInput');
+        const btnClearSearch = document.getElementById('btnClearSearch');
+
+        if (cueSearchInput) {
+            cueSearchInput.addEventListener('input', (e) => {
+                cueSearchFilter = (e.target.value || '').trim().toLowerCase();
+                if (btnClearSearch) {
+                    btnClearSearch.style.display = cueSearchFilter.length > 0 ? 'inline-block' : 'none';
+                }
+                renderRundown();
+            });
+        }
+
+        if (btnClearSearch) {
+            btnClearSearch.addEventListener('click', () => {
+                if (cueSearchInput) {
+                    cueSearchInput.value = '';
+                    cueSearchFilter = '';
+                    btnClearSearch.style.display = 'none';
+                    renderRundown();
+                }
+            });
+        }
+
         function renderRundown() {
             rundownList.innerHTML = '';
             cueCount.innerText = rundown.length;
 
             rundown.forEach((cue, idx) => {
+                // If search query is present, filter out non-matching cues
+                if (cueSearchFilter.length > 0) {
+                    const matchName = cue.name && cue.name.toLowerCase().includes(cueSearchFilter);
+                    const matchFmt = (cue.format || '').toLowerCase().includes(cueSearchFilter);
+                    const matchType = (cue.type || '').toLowerCase().includes(cueSearchFilter);
+                    if (!matchName && !matchFmt && !matchType) {
+                        return;
+                    }
+                }
+
                 const card = document.createElement('div');
                 card.className = `cue-card ${idx === selectedIndex ? 'selected-pvw' : ''} ${pgmCue && pgmCue.id === cue.id ? 'active-pgm' : ''}`;
                 card.draggable = true;
@@ -327,7 +363,7 @@
             renderRundown();
         }
 
-        // Cleanup previous media to prevent memory leak
+        // Cleanup previous media to prevent memory leak while preserving overlays
         function cleanupPvw() {
             const oldVideo = pvwContainer.querySelector('video');
             if (oldVideo) {
@@ -357,7 +393,8 @@
                 try { oldAudio.load(); } catch (_) {}
                 oldAudio.remove();
             }
-            pvwContainer.innerHTML = '';
+            // Remove previous images and audio wraps but preserve pvwTickerOverlay and hints
+            pvwContainer.querySelectorAll('img, .pvw-audio-wrap').forEach(el => el.remove());
         }
 
         // Load into PREVIEW
@@ -818,9 +855,68 @@
             selectCue(0);
         });
 
-        // Delete Cue
+        // ==================== UNDO STACK FOR RUNDOWN SAFETY ====================
+        const rundownUndoStack = [];
+        const MAX_UNDO_DEPTH = 20;
+
+        function pushRundownHistory(actionDescription = 'Thay đổi kịch bản') {
+            try {
+                const snapshot = JSON.stringify({
+                    rundown: rundown.map(c => ({ ...c })),
+                    selectedIndex: selectedIndex
+                });
+                rundownUndoStack.push({ snapshot, description: actionDescription });
+                if (rundownUndoStack.length > MAX_UNDO_DEPTH) {
+                    rundownUndoStack.shift();
+                }
+            } catch (err) {
+                console.warn('Could not record undo state:', err);
+            }
+        }
+
+        function undoLastRundownAction() {
+            if (rundownUndoStack.length === 0) {
+                showOperatorToast('ℹ️ Không có thao tác nào để hoàn tác (Undo stack rỗng)', 'info', 2000);
+                return;
+            }
+            const lastState = rundownUndoStack.pop();
+            try {
+                const data = JSON.parse(lastState.snapshot);
+                rundown = data.rundown;
+                selectedIndex = data.selectedIndex;
+                renderRundown();
+                if (selectedIndex >= 0 && selectedIndex < rundown.length) {
+                    selectCue(selectedIndex);
+                } else if (rundown.length > 0) {
+                    selectCue(0);
+                } else {
+                    pvwCue = null;
+                    cleanupPvw();
+                    pvwCueTitle.innerText = 'NO CUE SELECTED';
+                    pvwTypeTag.innerText = 'STANDBY';
+                    document.getElementById('pvwFrame').classList.remove('has-content');
+                }
+                showOperatorToast(`↩️ Đã hoàn tác: ${lastState.description} (Ctrl+Z)`, 'info', 2500);
+            } catch (err) {
+                console.error('Failed to restore undo state:', err);
+            }
+        }
+
+        // Global hotkey Ctrl+Z for undoing rundown modifications
+        window.addEventListener('keydown', (e) => {
+            const tagName = (e.target && e.target.tagName) ? e.target.tagName.toUpperCase() : '';
+            const isText = ['INPUT', 'TEXTAREA'].includes(tagName);
+            if (!isText && (e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z') && !e.shiftKey) {
+                e.preventDefault();
+                undoLastRundownAction();
+            }
+        });
+
+        // Delete Cue with Undo Recording
         function deleteSelectedCue() {
             if (selectedIndex >= 0 && selectedIndex < rundown.length) {
+                const deletedName = rundown[selectedIndex].name;
+                pushRundownHistory(`Xóa Cue "${deletedName}"`);
                 rundown.splice(selectedIndex, 1);
                 if (selectedIndex >= rundown.length) selectedIndex = rundown.length - 1;
                 renderRundown();
@@ -832,13 +928,16 @@
                     pvwTypeTag.innerText = 'STANDBY';
                     document.getElementById('pvwFrame').classList.remove('has-content');
                 }
+                showOperatorToast(`🗑️ Đã xóa cue. Bấm Ctrl+Z để hoàn tác`, 'info', 3000);
             }
         }
         document.getElementById('btnDeleteCue').addEventListener('click', deleteSelectedCue);
 
-        // Clear All
+        // Clear All with Confirmation & Undo Recording
         document.getElementById('btnClearRundown').addEventListener('click', () => {
-            if (confirm('Bạn có chắc muốn xóa sạch toàn bộ kịch bản Rundown?')) {
+            if (rundown.length === 0) return;
+            if (confirm(`Bạn có chắc muốn xóa sạch toàn bộ kịch bản Rundown (${rundown.length} mục)?`)) {
+                pushRundownHistory(`Xóa toàn bộ ${rundown.length} cues`);
                 rundown = [];
                 selectedIndex = -1;
                 pvwCue = null;
@@ -847,6 +946,7 @@
                 pvwTypeTag.innerText = 'STANDBY';
                 document.getElementById('pvwFrame').classList.remove('has-content');
                 renderRundown();
+                showOperatorToast(`🗑️ Đã xóa sạch rundown. Bấm Ctrl+Z để khôi phục!`, 'warn', 4000);
             }
         });
 

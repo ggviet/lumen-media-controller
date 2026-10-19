@@ -48,7 +48,7 @@ function attachPanicInputInterceptor(win, windowRole = 'operator') {
     let emergencyAction = null;
     let payload = null;
 
-    if (code === 'Escape' || key === 'Escape' || code === 'F4' || code === 'NumpadSubtract') {
+    if ((code === 'Escape' || key === 'Escape') ? shift : (code === 'F4' || code === 'NumpadSubtract')) {
       emergencyAction = 'BLACKOUT';
       payload = { preserveAudio: !shift };
     } else if (code === 'Numpad5') {
@@ -452,6 +452,103 @@ ipcMain.on('toggle-stage-preview', () => {
     }
   }
   notifyDisplaysChanged();
+});
+
+// Identify Displays overlay on all physical monitors
+let identifyWindows = [];
+ipcMain.on('identify-displays', () => {
+  // Close any existing identify overlays
+  identifyWindows.forEach(w => {
+    if (w && !w.isDestroyed()) w.close();
+  });
+  identifyWindows = [];
+
+  const displays = screen.getAllDisplays();
+  displays.forEach((disp, idx) => {
+    const idWin = new BrowserWindow({
+      x: disp.bounds.x + 40,
+      y: disp.bounds.y + 40,
+      width: 220,
+      height: 180,
+      transparent: true,
+      frame: false,
+      alwaysOnTop: true,
+      skipTaskbar: true,
+      focusable: false,
+      hasShadow: false,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true
+      }
+    });
+
+    const isPrimary = disp.id === screen.getPrimaryDisplay().id;
+    const label = disp.label || (isPrimary ? 'Primary Display' : `Display ${idx + 1}`);
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          * { margin:0; padding:0; box-sizing:border-box; user-select:none; }
+          body {
+            background: rgba(12, 14, 20, 0.94);
+            border: 3px solid #00e5ff;
+            border-radius: 12px;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(0, 229, 255, 0.5);
+          }
+          .num {
+            font-size: 72px;
+            font-weight: 900;
+            color: #00e5ff;
+            line-height: 1;
+            font-family: 'JetBrains Mono', Consolas, monospace;
+          }
+          .label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-top: 6px;
+            text-align: center;
+            padding: 0 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+          }
+          .res {
+            font-size: 10px;
+            color: #64748b;
+            font-family: 'JetBrains Mono', Consolas, monospace;
+            margin-top: 2px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="num">${idx + 1}</div>
+        <div class="label">${label}</div>
+        <div class="res">${disp.bounds.width}x${disp.bounds.height}</div>
+      </body>
+      </html>
+    `;
+    idWin.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
+    idWin.setIgnoreMouseEvents(true);
+    identifyWindows.push(idWin);
+  });
+
+  setTimeout(() => {
+    identifyWindows.forEach(w => {
+      if (w && !w.isDestroyed()) w.close();
+    });
+    identifyWindows = [];
+  }, 3000);
 });
 
 // File picker dialog

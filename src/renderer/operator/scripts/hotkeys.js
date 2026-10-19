@@ -163,13 +163,19 @@
                     triggerGoLive();
                     break;
                 case 'KeyB':
-                case 'Escape':
                 case 'F4':
                 case 'NumpadSubtract':
                     e.preventDefault();
                     btnBlackout.click();
                     if (e.shiftKey && typeof stopAudioDeck === 'function') {
                         stopAudioDeck();
+                    }
+                    break;
+                case 'Escape':
+                    // Prevent accidental blackout on Esc! Only trigger Blackout if Shift+Esc or Alt+Esc is pressed
+                    if (e.shiftKey || e.altKey) {
+                        e.preventDefault();
+                        btnBlackout.click();
                     }
                     break;
                 case 'KeyF':
@@ -206,7 +212,8 @@
                     break;
                 default:
                     // Fallback for Numpad keys when NumLock is toggled or key string is matched
-                    if (key === 'Escape' || key === 'F4') { e.preventDefault(); btnBlackout.click(); }
+                    if (key === 'F4') { e.preventDefault(); btnBlackout.click(); }
+                    else if (key === 'Escape' && (e.shiftKey || e.altKey)) { e.preventDefault(); btnBlackout.click(); }
                     else if (key === 'F1') { e.preventDefault(); btnSafeLogo.click(); }
                     else if (key === 'F2') { e.preventDefault(); btnFreeze.click(); }
                     else if (key === 'F3') { e.preventDefault(); btnFTB.click(); }

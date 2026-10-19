@@ -127,11 +127,48 @@
             }
         }
 
-        function hidePgmTicker() {
-            const pgmTickerOverlay = document.getElementById('pgmTickerOverlay');
-            if (pgmTickerOverlay) {
-                pgmTickerOverlay.classList.remove('visible');
+        // Identify Displays Button Listener
+        const btnIdentifyDisplays = document.getElementById('btnIdentifyDisplays');
+        if (btnIdentifyDisplays) {
+            btnIdentifyDisplays.addEventListener('click', () => {
+                ipcRenderer.send('identify-displays');
+            });
+        }
+
+        // Preview Ticker Overlay Support
+        function showPvwTicker(text) {
+            const pvwTickerOverlay = document.getElementById('pvwTickerOverlay');
+            const pvwTickerContent = document.getElementById('pvwTickerContent');
+            if (pvwTickerOverlay && pvwTickerContent) {
+                pvwTickerContent.innerText = text;
+                const charCount = text.length;
+                const durationSec = Math.max(12, Math.min(60, Math.round(charCount / 2.5)));
+                pvwTickerContent.style.animation = 'none';
+                void pvwTickerContent.offsetWidth; // Force CSS reflow
+                pvwTickerContent.style.animation = `marquee ${durationSec}s linear infinite`;
+                pvwTickerOverlay.classList.add('visible');
             }
+        }
+
+        function hidePvwTicker() {
+            const pvwTickerOverlay = document.getElementById('pvwTickerOverlay');
+            if (pvwTickerOverlay) {
+                pvwTickerOverlay.classList.remove('visible');
+            }
+        }
+
+        const btnPreviewTicker = document.getElementById('btnPreviewTicker');
+        if (btnPreviewTicker) {
+            btnPreviewTicker.addEventListener('click', () => {
+                const txt = tickerInput.value.trim().slice(0, 1000);
+                if (txt) {
+                    showPvwTicker(txt);
+                    btnPreviewTicker.style.background = 'rgba(0, 230, 118, 0.2)';
+                } else {
+                    hidePvwTicker();
+                    btnPreviewTicker.style.background = 'transparent';
+                }
+            });
         }
 
         btnPushTicker.addEventListener('click', () => {
@@ -150,7 +187,32 @@
         btnHideTicker.addEventListener('click', () => {
             ipcRenderer.send('stage-control', 'HIDE_TICKER');
             hidePgmTicker();
+            hidePvwTicker();
             btnPushTicker.style.background = 'var(--accent-blue)';
+            if (btnPreviewTicker) btnPreviewTicker.style.background = 'transparent';
+        });
+
+        // Column 3 Tabs Switching
+        document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetTab = btn.dataset.tab;
+                document.querySelectorAll('.settings-tab-btn').forEach(b => {
+                    b.classList.remove('active');
+                    b.style.borderBottomColor = 'transparent';
+                    b.style.color = 'var(--text-muted)';
+                });
+                btn.classList.add('active');
+                btn.style.borderBottomColor = 'var(--accent-cyan)';
+                btn.style.color = 'var(--text-main)';
+
+                document.querySelectorAll('.settings-tab-pane').forEach(pane => {
+                    if (pane.id === targetTab) {
+                        pane.style.display = 'flex';
+                    } else {
+                        pane.style.display = 'none';
+                    }
+                });
+            });
         });
 
         // Stage Heartbeat Listener
