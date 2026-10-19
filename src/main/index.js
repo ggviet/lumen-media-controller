@@ -127,7 +127,7 @@ function createOperatorWindow() {
       contextIsolation: false,
       webSecurity: false,
     },
-    title: "LUMEN PRO - Event Media Controller (Broadcast Suite)",
+    title: `LUMEN PRO v${app.getVersion()} - Event Media Controller (Broadcast Suite)`,
     backgroundColor: '#0a0a0c',
     icon: resolveAssetPath('icon.png')
   });

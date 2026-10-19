@@ -30,7 +30,7 @@ describe('Milestone 5 Verification: Standalone Portable Packaging & Offline Read
       assert.ok(builderYml.includes('- assets/**/*'));
       assert.ok(builderYml.includes('extraResources:'));
       assert.ok(builderYml.includes('target: portable'));
-      assert.ok(builderYml.includes('artifactName: LUMEN-PRO-Portable.exe'));
+      assert.ok(builderYml.includes('artifactName: LUMEN-PRO-') && builderYml.includes('Portable.exe'));
     });
 
     it('1.3: Valid binary PNG (assets/icon.png) and ICO (assets/icon.ico) exist with valid headers', () => {
@@ -76,14 +76,16 @@ describe('Milestone 5 Verification: Standalone Portable Packaging & Offline Read
   });
 
   describe('3. Compiled Standalone Artifacts in dist/', () => {
-    it('3.1: Standalone portable executable (dist/LUMEN-PRO-Portable.exe) and win-unpacked binary exist and are non-empty', () => {
+    it('3.1: Standalone portable executable in dist/ and win-unpacked binary exist and are non-empty', () => {
       const distDir = path.join(rootDir, 'dist');
       assert.ok(fs.existsSync(distDir), 'dist/ directory must exist');
 
-      const portableExe = path.join(distDir, 'LUMEN-PRO-Portable.exe');
+      const files = fs.readdirSync(distDir);
+      const portableFileName = files.find(f => /^LUMEN-PRO-(v.*-)?Portable\.exe$/i.test(f));
+      assert.ok(portableFileName, `Standalone portable .exe must exist in dist/ (found: ${files.join(', ')})`);
+      const portableExe = path.join(distDir, portableFileName);
       const unpackedExe = path.join(distDir, 'win-unpacked', 'LUMEN PRO.exe');
 
-      assert.ok(fs.existsSync(portableExe), 'dist/LUMEN-PRO-Portable.exe must exist');
       const portableStat = fs.statSync(portableExe);
       assert.ok(portableStat.size > 50 * 1024 * 1024, `Portable .exe should be >50MB, got ${portableStat.size} bytes`);
 

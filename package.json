@@ -1,15 +1,15 @@
 {
   "name": "lumen",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "LUMEN PRO - Zero-Install Standalone Event Media Controller",
   "main": "src/main/index.js",
   "scripts": {
     "start": "electron .",
     "dev": "electron .",
     "test": "node tests/run_all.js",
-    "build": "electron-builder --win portable dir",
-    "package": "electron-builder --win portable dir",
-    "dist": "electron-builder --win portable dir"
+    "build": "electron-builder --win nsis portable dir",
+    "package": "electron-builder --win nsis portable dir",
+    "dist": "electron-builder --win nsis portable dir"
   },
   "keywords": [
     "event",

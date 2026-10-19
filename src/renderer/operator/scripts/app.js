@@ -101,6 +101,16 @@
         setInterval(updateClock, 1000);
         updateClock();
 
+        // Sync Application Version Badge
+        try {
+            const pkg = require('../../../package.json');
+            const versionBadge = document.getElementById('appVersionBadge') || document.querySelector('.brand-badge');
+            if (versionBadge && pkg && pkg.version) {
+                versionBadge.textContent = `BROADCAST PRO v${pkg.version}`;
+                versionBadge.title = `LUMEN PRO Version ${pkg.version}`;
+            }
+        } catch (_) {}
+
         // Displays Populate
         async function refreshDisplays() {
             const data = await ipcRenderer.invoke('get-displays');

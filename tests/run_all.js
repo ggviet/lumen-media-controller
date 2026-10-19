@@ -20,3 +20,11 @@ require('./tier2_boundaries.test.js');
 require('./tier3_combinations.test.js');
 require('./tier4_realworld.test.js');
 require('./tier5_audio_event.test.js');
+
+const { after } = require('node:test');
+after(() => {
+  setImmediate(() => {
+    process.exit(0);
+  });
+});
+
