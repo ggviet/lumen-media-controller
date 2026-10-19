@@ -242,7 +242,7 @@
             margin-left: 8px;
             border-radius: var(--radius-micro);
             flex-shrink: 0;
-            transition: all 0.2s ease;
+            transition: background-color 0.2s ease, opacity 0.2s ease;
         }
 
         .pgm-ticker-badge.badge-hot-news { background: #f59e0b; color: #000; }
