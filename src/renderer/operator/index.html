@@ -148,41 +148,47 @@
                         </div>
                     </div>
 
-                    <div class="mon-footer pvw-mon-footer">
-                        <!-- Left Controls: Transport & PFL Audio -->
-                        <div class="pvw-ctrl-group pvw-ctrl-left">
-                            <button id="btnPvwPlayPause" class="btn-small pvw-btn btn-icon-label" title="Phát / Dừng xem trước" aria-label="Phát hoặc tạm dừng xem trước PVW"><svg class="icon-svg sm icon-play" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><span class="btn-text">Play</span></button>
-                            <button id="btnCueAudio" class="btn-small pvw-btn btn-icon-label" title="Nghe thử âm thanh qua tai nghe (PFL)" aria-label="Nghe thử âm thanh tai nghe PFL"><svg class="icon-svg sm" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg><span class="btn-text">Cue: OFF</span></button>
-                        </div>
+                    <!-- PREVIEW (PVW) FOOTER PANEL -->
+                    <div class="pvw-footer-panel">
+                        <!-- Row 1: Dedicated Scrubber Timeline & Transport -->
+                        <div class="pvw-timeline-row">
+                            <div class="pvw-transport-btns">
+                                <button id="btnPvwPlayPause" class="btn-small pvw-btn btn-icon-label" title="Phát / Dừng xem trước" aria-label="Phát hoặc tạm dừng xem trước PVW"><svg class="icon-svg sm icon-play" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><span class="btn-text">Play</span></button>
+                                <button id="btnCueAudio" class="btn-small pvw-btn btn-icon-label" title="Nghe thử âm thanh qua tai nghe (PFL)" aria-label="Nghe thử âm thanh tai nghe PFL"><svg class="icon-svg sm" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg><span class="btn-text">Cue: OFF</span></button>
+                            </div>
 
-                        <!-- Center: Scrubber & Timecode -->
-                        <div class="pvw-ctrl-group pvw-ctrl-center">
-                            <span id="pvwTimeDisplay" class="pvw-time-tag">00:00 / 00:00</span>
-                            <div class="pvw-scrubber-box">
+                            <div class="pvw-scrubber-track">
                                 <input type="range" id="pvwScrubber" class="scrubber-slider" min="0" max="100" value="0" aria-label="Thanh tua thời gian Preview">
                             </div>
+
+                            <span id="pvwTimeDisplay" class="pvw-time-tag">00:00 / 00:00</span>
                         </div>
 
-                        <!-- Right Controls: End Behavior Selector -->
-                        <div class="pvw-ctrl-group pvw-ctrl-right">
-                            <button id="btnPvwHideVisual" class="btn-small pvw-btn btn-hide-visual" title="Ẩn hình trên sân khấu, chỉ phát tiếng (trò chơi đoán tên bài hát)" aria-label="Ẩn hình, chỉ phát tiếng" aria-pressed="false">🙈 Ẩn hình</button>
-                            <span id="pvwMaskImageGroup" class="pvw-mask-group" style="display:none;">
-                                <button id="btnPvwMaskImage" class="btn-small pvw-btn" title="Chọn ảnh hiển thị trên sân khấu khi đang ẩn hình (mặc định: Key Visual sự kiện)" aria-label="Chọn ảnh che">🖼 <span id="pvwMaskImageName">Key Visual</span></button>
-                                <button id="btnPvwMaskClear" class="btn-small pvw-btn" title="Bỏ ảnh riêng, dùng Key Visual sự kiện" aria-label="Bỏ ảnh che riêng" style="display:none;">✕</button>
-                                <select id="pvwMaskScalingSelect" class="btn-small pvw-select" title="Tỉ lệ hiển thị của ảnh che (Cover / Contain / Fill)" aria-label="Tỉ lệ ảnh che" style="height:28px; font-size:10px; padding:0 4px;">
-                                    <option value="cover">Cover (Lấp đầy)</option>
-                                    <option value="contain">Contain (Vừa khung)</option>
-                                    <option value="fill">Fill (Kéo giãn)</option>
+                        <!-- Row 2: Cue Visual & End Settings Strip -->
+                        <div class="pvw-cue-toolbar">
+                            <div class="pvw-mask-controls">
+                                <button id="btnPvwHideVisual" class="btn-small pvw-btn btn-hide-visual" title="Ẩn hình trên sân khấu, chỉ phát tiếng (trò chơi đoán tên bài hát)" aria-label="Ẩn hình, chỉ phát tiếng" aria-pressed="false">🙈 Ẩn hình</button>
+                                <span id="pvwMaskImageGroup" class="pvw-mask-group" style="display:none;">
+                                    <button id="btnPvwMaskImage" class="btn-small pvw-btn pvw-mask-pick-btn" title="Chọn ảnh hiển thị trên sân khấu khi đang ẩn hình (mặc định: Key Visual sự kiện)" aria-label="Chọn ảnh che">🖼 <span id="pvwMaskImageName">Key Visual</span></button>
+                                    <button id="btnPvwMaskClear" class="btn-small pvw-btn pvw-mask-clear-btn" title="Bỏ ảnh riêng, dùng Key Visual sự kiện" aria-label="Bỏ ảnh che riêng" style="display:none;">✕</button>
+                                    <select id="pvwMaskScalingSelect" class="btn-small pvw-select pvw-mask-scale-select" title="Tỉ lệ hiển thị của ảnh che (Cover / Contain / Fill)" aria-label="Tỉ lệ ảnh che">
+                                        <option value="cover">Cover (Phủ đầy)</option>
+                                        <option value="contain">Contain (Vừa khung)</option>
+                                        <option value="fill">Fill (Kéo dãn)</option>
+                                    </select>
+                                </span>
+                            </div>
+
+                            <div class="pvw-end-controls">
+                                <label for="pvwEndBehaviorSelect" class="micro-label" style="font-size:9px; color:var(--text-dim); margin-right:2px;">END:</label>
+                                <select id="pvwEndBehaviorSelect" class="btn-small pvw-select" title="Hành vi khi kết thúc video" aria-label="Hành vi khi kết thúc video">
+                                    <option value="HOLD_LAST_FRAME">Hold Frame Cuối</option>
+                                    <option value="RETURN_TO_SAFE_LOGO">Về nền sự kiện (Safe Logo)</option>
+                                    <option value="LOOP">Lặp Vô Tận (Loop)</option>
+                                    <option value="AUTO_NEXT">Auto Next</option>
+                                    <option value="FADE_TO_BLACK">Fade To Black</option>
                                 </select>
-                            </span>
-                            <label for="pvwEndBehaviorSelect" class="micro-label" style="font-size:9px; color:var(--text-dim); margin-right:2px;">END:</label>
-                            <select id="pvwEndBehaviorSelect" class="btn-small pvw-select" title="Hành vi khi kết thúc video" aria-label="Hành vi khi kết thúc video">
-                                <option value="HOLD_LAST_FRAME">Hold Frame Cuối</option>
-                                <option value="RETURN_TO_SAFE_LOGO">Về nền sự kiện (Safe Logo)</option>
-                                <option value="LOOP">Lặp Vô Tận (Loop)</option>
-                                <option value="AUTO_NEXT">Auto Next</option>
-                                <option value="FADE_TO_BLACK">Fade To Black</option>
-                            </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -207,12 +213,21 @@
                         </div>
                     </div>
 
-                    <div class="mon-footer">
-                        <div class="footer-time-block">
-                            <span class="footer-time-label">ELAPSED:</span> <span id="pgmElapsed">00:00</span>
+                    <!-- PROGRAM (PGM) FOOTER PANEL -->
+                    <div class="pgm-footer-panel">
+                        <div class="pgm-status-row">
+                            <div class="pgm-live-indicator">
+                                <span class="pgm-live-dot"></span>
+                                <span>STAGE FOH FEED</span>
+                            </div>
+                            <div class="footer-time-block">
+                                <span class="footer-time-label">ELAPSED:</span> <span id="pgmElapsed">00:00</span>
+                            </div>
                         </div>
-                        <div class="footer-time-block pgm-countdown-block">
-                            <span class="pgm-countdown-label">REMAINING:</span> <span id="pgmRemaining" class="pgm-countdown-val">00:00</span>
+                        <div class="pgm-countdown-row">
+                            <div class="footer-time-block pgm-countdown-block">
+                                <span class="pgm-countdown-label">REMAINING:</span> <span id="pgmRemaining" class="pgm-countdown-val">00:00</span>
+                            </div>
                         </div>
                     </div>
                 </div>

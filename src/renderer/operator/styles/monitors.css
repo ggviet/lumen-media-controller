@@ -320,42 +320,60 @@
             overflow: hidden;
         }
 
-        /* Pro Broadcast Preview Toolbar Alignment */
-        .pvw-mon-footer {
+        /* Pro Broadcast Dual-Monitor 2-Row Footer Panels */
+        .pvw-footer-panel, .pgm-footer-panel {
+            background: #090b0f;
+            border-top: 1px solid var(--border-subtle);
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            padding: 0 12px;
+            flex-direction: column;
+            flex-shrink: 0;
+            font-family: 'JetBrains Mono', Consolas, 'SF Mono', monospace;
+            font-variant-numeric: tabular-nums lining-nums;
+            font-feature-settings: "tnum" 1, "zero" 1;
+            overflow: hidden;
         }
 
-        .pvw-ctrl-group {
+        /* PVW Row 1: Dedicated Scrubber Timeline & Transport */
+        .pvw-timeline-row {
+            height: 36px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 10px;
+            background: #0a0d13;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .pvw-transport-btns {
             display: flex;
             align-items: center;
             gap: 6px;
             flex-shrink: 0;
         }
 
-        .pvw-ctrl-left {
-            flex-shrink: 0;
-        }
-
         .pvw-btn {
-            height: 28px;
-            padding: 0 10px;
+            height: 26px;
+            padding: 0 8px;
             font-size: 11px;
             font-weight: 700;
             white-space: nowrap;
-            line-height: 26px;
+            line-height: 24px;
+            border-radius: var(--radius-micro);
+            cursor: pointer;
         }
 
-        .pvw-ctrl-center {
+        .pvw-scrubber-track {
             flex: 1 1 auto;
-            min-width: 0;
+            min-width: 60px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 0 6px;
+        }
+
+        .pvw-scrubber-track .scrubber-slider {
+            width: 100%;
+            height: 5px;
+            accent-color: var(--pvw-green);
+            cursor: pointer;
         }
 
         .pvw-time-tag {
@@ -364,29 +382,127 @@
             color: var(--accent-cyan);
             white-space: nowrap;
             flex-shrink: 0;
-            margin-right: 2px;
+            letter-spacing: 0.04em;
         }
 
-        .pvw-scrubber-box {
-            flex: 1 1 auto;
-            min-width: 60px;
+        /* PVW Row 2: Cue Visual & End Settings Strip */
+        .pvw-cue-toolbar {
+            height: 34px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 0 10px;
+            background: #07090d;
         }
 
-        .pvw-ctrl-right {
+        .pvw-mask-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 0;
+            flex: 1 1 auto;
+            overflow: hidden;
+        }
+
+        .pvw-mask-pick-btn {
+            height: 24px;
+            font-size: 10px;
+            padding: 0 6px;
+            max-width: 130px;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            border-radius: var(--radius-micro);
+            white-space: nowrap;
+        }
+
+        .pvw-mask-pick-btn span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .pvw-mask-clear-btn {
+            height: 24px;
+            width: 22px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
             flex-shrink: 0;
+            border-radius: var(--radius-micro);
+        }
+
+        .pvw-mask-scale-select {
+            height: 24px;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 0 4px;
+            flex-shrink: 0;
+            border-radius: var(--radius-micro);
+        }
+
+        .pvw-end-controls {
             display: flex;
             align-items: center;
             gap: 4px;
+            flex-shrink: 0;
         }
 
         .pvw-select {
-            height: 28px;
-            font-size: 11px;
+            height: 24px;
+            font-size: 10px;
             font-weight: 700;
-            padding: 0 8px;
+            padding: 0 6px;
             cursor: pointer;
+            border-radius: var(--radius-micro);
+        }
+
+        /* PGM Footer Panel Symmetrical Rows */
+        .pgm-status-row {
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            background: #0a0d13;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .pgm-live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #ef4444;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .pgm-live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ef4444;
+            box-shadow: 0 0 6px #ef4444;
+            animation: pulse-live 1.5s infinite;
+        }
+
+        @keyframes pulse-live {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .pgm-countdown-row {
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 10px;
+            background: #07090d;
         }
 
         #pvwTimeDisplay, #pgmElapsed, #pgmRemaining {
