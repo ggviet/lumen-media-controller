@@ -44,8 +44,8 @@
                 <select id="stageDisplaySelect" class="display-select" aria-label="Chọn màn hình xuất tín hiệu sân khấu">
                     <option value="">Scanning displays…</option>
                 </select>
-                <button id="btnIdentifyDisplays" class="btn-small" title="Hiện số nhận diện màn hình lớn trên các monitor vật lý" aria-label="Nhận diện màn hình vật lý" style="font-size:10px; padding:4px 8px; font-weight:700; color:#fbbf24; border-color:rgba(245,158,11,0.5); margin-left:4px;">🔍 Identify</button>
-                <button id="btnToggleStagePip" class="btn-small" title="Bật/Tắt cửa sổ xem trước Stage trên màn hình chính" aria-label="Bật hoặc tắt xem trước Stage PiP" style="font-size:10px; padding:4px 8px; font-weight:700; color:var(--accent-cyan); border-color:rgba(0,229,255,0.4); margin-left:2px;">Stage PiP</button>
+                <button id="btnIdentifyDisplays" class="btn-small btn-icon-label" title="Hiện số nhận diện màn hình lớn trên các monitor vật lý" aria-label="Nhận diện màn hình vật lý" style="font-size:10px; padding:4px 8px; font-weight:700; color:#fbbf24; border-color:rgba(245,158,11,0.5); margin-left:4px;"><svg class="icon-svg sm" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg> Identify</button>
+                <button id="btnToggleStagePip" class="btn-small btn-icon-label" title="Bật/Tắt cửa sổ xem trước Stage trên màn hình chính" aria-label="Bật hoặc tắt xem trước Stage PiP" style="font-size:10px; padding:4px 8px; font-weight:700; color:var(--accent-cyan); border-color:rgba(0,229,255,0.4); margin-left:2px;"><svg class="icon-svg sm" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><rect x="14" y="9" width="6" height="6" rx="1"></rect></svg> Stage PiP</button>
             </div>
         </div>
 
@@ -89,21 +89,24 @@
         <!-- Column 1: Rundown / Cue Library -->
         <aside class="col-rundown" id="rundownCol">
             <!-- Drag Over Overlay Hint -->
-            <div class="drop-overlay" id="dropOverlay">📥 Thả File Video/Ảnh vào đây</div>
+            <div class="drop-overlay" id="dropOverlay">
+                <svg class="icon-svg lg" viewBox="0 0 24 24" style="margin-right:6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                Thả File Video/Ảnh vào đây
+            </div>
 
             <div class="panel-header">
                 <span>Rundown (<span id="cueCount" style="font-family:'JetBrains Mono', Consolas, monospace; font-variant-numeric:tabular-nums lining-nums;">0</span>)</span>
                 <div style="display:flex; gap:6px;">
                     <button id="btnLoadDemo" class="btn-small" title="Load sample event cues">Demo</button>
-                    <button id="btnAddFiles" class="btn-small">+ Add</button>
+                    <button id="btnAddFiles" class="btn-small btn-icon-label"><svg class="icon-svg sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Add</button>
                 </div>
             </div>
 
             <!-- Fast Search & Filter Filter Bar -->
             <div class="rundown-search-bar" style="padding: 6px 10px; background: #090b10; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 6px;">
-                <span style="font-size: 11px; color: var(--text-dim);" aria-hidden="true">🔍</span>
+                <svg class="icon-svg sm" viewBox="0 0 24 24" style="color:var(--text-dim);" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 <input type="text" id="cueSearchInput" placeholder="Tìm kiếm cue theo tên…" aria-label="Tìm kiếm cue theo tên" style="flex:1; background:transparent; border:none; outline:none; color:var(--text-main); font-size:11px;">
-                <button id="btnClearSearch" aria-label="Xóa nội dung tìm kiếm" style="background:transparent; border:none; color:var(--text-dim); cursor:pointer; font-size:11px; display:none;">✕</button>
+                <button id="btnClearSearch" aria-label="Xóa nội dung tìm kiếm" style="background:transparent; border:none; color:var(--text-dim); cursor:pointer; font-size:11px; display:none; padding:2px;"><svg class="icon-svg sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
             </div>
 
             <div class="rundown-list" id="rundownList" role="list" aria-label="Danh sách rundown cues">
@@ -111,9 +114,9 @@
             </div>
 
             <div class="rundown-actions">
-                <button id="btnMoveUp" class="btn-small" aria-label="Di chuyển cue lên trên">▲ Up</button>
-                <button id="btnMoveDown" class="btn-small" aria-label="Di chuyển cue xuống dưới">▼ Down</button>
-                <button id="btnDeleteCue" class="btn-small" aria-label="Xóa cue được chọn" style="color:var(--pgm-red);">✕ Del</button>
+                <button id="btnMoveUp" class="btn-small btn-icon-label" aria-label="Di chuyển cue lên trên"><svg class="icon-svg sm" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"></polyline></svg> Up</button>
+                <button id="btnMoveDown" class="btn-small btn-icon-label" aria-label="Di chuyển cue xuống dưới"><svg class="icon-svg sm" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg> Down</button>
+                <button id="btnDeleteCue" class="btn-small btn-icon-label" aria-label="Xóa cue được chọn" style="color:var(--pgm-red);"><svg class="icon-svg sm" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Del</button>
                 <button id="btnClearRundown" class="btn-small" aria-label="Xóa toàn bộ rundown" style="color:var(--text-dim);">Clear</button>
             </div>
         </aside>
@@ -144,8 +147,8 @@
                     <div class="mon-footer pvw-mon-footer">
                         <!-- Left Controls: Transport & PFL Audio -->
                         <div class="pvw-ctrl-group pvw-ctrl-left">
-                            <button id="btnPvwPlayPause" class="btn-small pvw-btn" title="Phát / Dừng xem trước" aria-label="Phát hoặc tạm dừng xem trước PVW">▶ Play</button>
-                            <button id="btnCueAudio" class="btn-small pvw-btn" title="Nghe thử âm thanh qua tai nghe (PFL)" aria-label="Nghe thử âm thanh tai nghe PFL">🎧 Cue: OFF</button>
+                            <button id="btnPvwPlayPause" class="btn-small pvw-btn btn-icon-label" title="Phát / Dừng xem trước" aria-label="Phát hoặc tạm dừng xem trước PVW"><svg class="icon-svg sm icon-play" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><span class="btn-text">Play</span></button>
+                            <button id="btnCueAudio" class="btn-small pvw-btn btn-icon-label" title="Nghe thử âm thanh qua tai nghe (PFL)" aria-label="Nghe thử âm thanh tai nghe PFL"><svg class="icon-svg sm" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg><span class="btn-text">Cue: OFF</span></button>
                         </div>
 
                         <!-- Center: Scrubber & Timecode -->
@@ -241,8 +244,8 @@
                             <span id="audioDeckLiveBadge" class="audio-deck-badge standby" style="padding:2px 6px; font-size:9px;">STANDBY</span>
                         </div>
                         <div style="display:flex; align-items:center; gap:4px; flex-shrink:0;">
-                            <button id="btnAudioSyncLive" class="btn-small btn-sync active" style="height:24px; padding:0 8px; font-size:10px; font-weight:700;" title="Tự động phát đồng thời khi nhấn GO LIVE">🔗 Sync: ON</button>
-                            <button id="btnLoadAudioDeckFile" class="btn-small" style="height:24px; padding:0 8px; font-size:10px; font-weight:700; color:var(--text-main);" title="Nạp bài nhạc mới (+ Load BGM)">+ Load</button>
+                            <button id="btnAudioSyncLive" class="btn-small btn-sync active btn-icon-label" style="height:24px; padding:0 8px; font-size:10px; font-weight:700;" title="Tự động phát đồng thời khi nhấn GO LIVE"><svg class="icon-svg sm" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg> <span class="btn-text">Sync: ON</span></button>
+                            <button id="btnLoadAudioDeckFile" class="btn-small btn-icon-label" style="height:24px; padding:0 8px; font-size:10px; font-weight:700; color:var(--text-main);" title="Nạp bài nhạc mới (+ Load BGM)"><svg class="icon-svg sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Load</button>
                         </div>
                     </div>
 
@@ -269,9 +272,9 @@
                     <div class="audio-transport-container" style="display:flex; flex-direction:column; gap:6px;">
                         <!-- Row 1: Primary Play / Stop / Fade / VU -->
                         <div style="display:flex; gap:6px; align-items:center;">
-                            <button id="btnAudioDeckPlayPause" class="btn-small btn-audio-play" style="flex:2; font-weight:700; height:32px;" title="Phát / Tạm dừng (Hotkey: Shift+Space / P / Numpad5)" aria-label="Phát hoặc tạm dừng Audio Deck">▶ Play</button>
-                            <button id="btnAudioDeckStop" class="btn-small" style="flex:1; height:32px; padding:0 6px;" title="Dừng và về đầu bài" aria-label="Dừng và về đầu bài Audio Deck">⏹ Stop</button>
-                            <button id="btnAudioDeckFadeOut" class="btn-small btn-fade-out" style="flex:1.2; height:32px; padding:0 6px; font-size:10px;" title="Hạ âm thanh từ từ 2.5s (Shift+T / Numpad.)" aria-label="Hạ âm lượng từ từ 2.5s">Fade 2.5s</button>
+                            <button id="btnAudioDeckPlayPause" class="btn-small btn-audio-play btn-icon-label" style="flex:2; font-weight:700; height:32px;" title="Phát / Tạm dừng (Hotkey: Shift+Space / P / Numpad5)" aria-label="Phát hoặc tạm dừng Audio Deck"><svg class="icon-svg sm icon-play" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><span class="btn-text">Play</span></button>
+                            <button id="btnAudioDeckStop" class="btn-small btn-icon-label" style="flex:1; height:32px; padding:0 6px;" title="Dừng và về đầu bài" aria-label="Dừng và về đầu bài Audio Deck"><svg class="icon-svg sm" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"></rect></svg> Stop</button>
+                            <button id="btnAudioDeckFadeOut" class="btn-small btn-fade-out btn-icon-label" style="flex:1.2; height:32px; padding:0 6px; font-size:10px;" title="Hạ âm thanh từ từ 2.5s (Shift+T / Numpad.)" aria-label="Hạ âm lượng từ từ 2.5s"><svg class="icon-svg sm" viewBox="0 0 24 24"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline></svg> Fade 2.5s</button>
                             
                             <!-- Stereo Mini VU Meter -->
                             <div class="audio-deck-vu" style="display:flex; gap:2px; align-items:center; height:30px; padding:0 4px; background:#07090e; border:1px solid #161b26; border-radius:3px;">
@@ -282,8 +285,8 @@
 
                         <!-- Row 2: Secondary Loop & Headphone PFL Cue -->
                         <div style="display:flex; gap:6px; align-items:center;">
-                            <button id="btnAudioDeckLoop" class="btn-small" style="flex:1; height:28px; font-size:10px;" title="Lặp lại bài nhạc" aria-label="Bật hoặc tắt lặp lại bài nhạc Audio Deck">🔁 Loop: OFF</button>
-                            <button id="btnCueAudioDeck" class="btn-small btn-audio-cue" style="flex:1.4; height:28px; font-size:10px;" title="Nghe trước trên tai nghe (PFL)" aria-label="Nghe trước tai nghe Audio Deck">🎧 Headphone Cue: OFF</button>
+                            <button id="btnAudioDeckLoop" class="btn-small btn-icon-label" style="flex:1; height:28px; font-size:10px;" title="Lặp lại bài nhạc" aria-label="Bật hoặc tắt lặp lại bài nhạc Audio Deck"><svg class="icon-svg sm" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg> <span class="btn-text">Loop: OFF</span></button>
+                            <button id="btnCueAudioDeck" class="btn-small btn-audio-cue btn-icon-label" style="flex:1.4; height:28px; font-size:10px;" title="Nghe trước trên tai nghe (PFL)" aria-label="Nghe trước tai nghe Audio Deck"><svg class="icon-svg sm" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg> <span class="btn-text">Cue: OFF</span></button>
                         </div>
                     </div>
                 </div>
@@ -330,7 +333,7 @@
                     <div class="audio-routing-card" style="margin-top:6px; display:flex; flex-direction:column; gap:6px;">
                         <div style="display:flex; flex-direction:column; gap:2px;">
                             <div style="display:flex; align-items:center; gap:4px;">
-                                <span style="font-size:11px;" aria-hidden="true">🔊</span>
+                                <svg class="icon-svg sm" viewBox="0 0 24 24" style="color:var(--accent-cyan);"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                                 <label for="audioSinkSelect" class="micro-label">Master FOH (Sân khấu):</label>
                             </div>
                             <select id="audioSinkSelect" class="btn-small" style="width:100%; font-size:10px; padding:4px 6px;" aria-label="Ngõ ra âm thanh Master Sân khấu">
@@ -339,7 +342,7 @@
                         </div>
                         <div style="display:flex; flex-direction:column; gap:2px;">
                             <div style="display:flex; align-items:center; gap:4px;">
-                                <span style="font-size:11px;" aria-hidden="true">🎧</span>
+                                <svg class="icon-svg sm" viewBox="0 0 24 24" style="color:var(--pvw-green);"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>
                                 <label for="cueAudioSinkSelect" class="micro-label">Cue Headphones (Tai nghe):</label>
                             </div>
                             <select id="cueAudioSinkSelect" class="btn-small" style="width:100%; font-size:10px; padding:4px 6px;" aria-label="Ngõ ra âm thanh tai nghe Cue">
@@ -396,8 +399,8 @@
                         <textarea id="tickerInput" class="ticker-text-box" placeholder="Nhập nội dung chữ chạy sự kiện… (Ví dụ: Chào mừng đại biểu tham dự Tech Summit 2026)" aria-label="Nội dung chữ chạy sự kiện"></textarea>
                         
                         <div class="ticker-btns" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">
-                            <button id="btnPreviewTicker" class="btn-small" style="height:28px; border-color:var(--pvw-green); color:var(--pvw-green); font-weight:700;" aria-label="Xem trước Ticker trên Preview">👁️ PREVIEW (PVW)</button>
-                            <button id="btnPushTicker" class="btn-small" style="height:28px; background:var(--accent-blue); color:#000; font-weight:700;" aria-label="Đẩy Ticker lên sóng Program Live">PUSH LIVE (PGM)</button>
+                            <button id="btnPreviewTicker" class="btn-small btn-icon-label" style="height:28px; border-color:var(--pvw-green); color:var(--pvw-green); font-weight:700;" aria-label="Xem trước Ticker trên Preview"><svg class="icon-svg sm" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> PREVIEW (PVW)</button>
+                            <button id="btnPushTicker" class="btn-small btn-icon-label" style="height:28px; background:var(--accent-blue); color:#000; font-weight:700;" aria-label="Đẩy Ticker lên sóng Program Live"><svg class="icon-svg sm" viewBox="0 0 24 24"><polyline points="13 17 18 12 13 7"></polyline><polyline points="6 17 11 12 6 7"></polyline></svg> PUSH LIVE (PGM)</button>
                             <button id="btnHideTicker" class="btn-small" style="height:28px;" aria-label="Ẩn thanh Ticker">HIDE</button>
                         </div>
                     </div>

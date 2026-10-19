@@ -389,7 +389,7 @@
                 }
                 if (btnAudioDeckPlayPause) {
                     btnAudioDeckPlayPause.classList.add('playing');
-                    btnAudioDeckPlayPause.innerText = '⏸ Pause';
+                    btnAudioDeckPlayPause.innerHTML = '<svg class="icon-svg sm" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg><span class="btn-text">Pause</span>';
                 }
                 if (isAudioDeckCueOn && operatorCuePlayer) {
                     operatorCuePlayer.src = operatorAudioDeck.src;
@@ -417,7 +417,7 @@
             }
             if (btnAudioDeckPlayPause) {
                 btnAudioDeckPlayPause.classList.remove('playing');
-                btnAudioDeckPlayPause.innerText = '▶ Play';
+                btnAudioDeckPlayPause.innerHTML = '<svg class="icon-svg sm" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><span class="btn-text">Play</span>';
             }
             if (operatorCuePlayer) {
                 operatorCuePlayer.pause();
@@ -450,7 +450,8 @@
             isAudioDeckLoop = !isAudioDeckLoop;
             if (operatorAudioDeck) operatorAudioDeck.loop = isAudioDeckLoop;
             if (btnAudioDeckLoop) {
-                btnAudioDeckLoop.innerText = isAudioDeckLoop ? '🔁 Loop: ON' : '🔁 Loop: OFF';
+                const loopText = isAudioDeckLoop ? 'Loop: ON' : 'Loop: OFF';
+                btnAudioDeckLoop.innerHTML = `<svg class="icon-svg sm" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg> <span class="btn-text">${loopText}</span>`;
                 btnAudioDeckLoop.style.color = isAudioDeckLoop ? 'var(--accent-cyan)' : '';
                 btnAudioDeckLoop.style.borderColor = isAudioDeckLoop ? 'rgba(0,229,255,0.4)' : '';
             }
@@ -459,7 +460,8 @@
         function toggleAudioSyncLive() {
             isAudioSyncLive = !isAudioSyncLive;
             if (btnAudioSyncLive) {
-                btnAudioSyncLive.innerText = isAudioSyncLive ? '🔗 Sync: ON' : '🔗 Sync: OFF';
+                const syncText = isAudioSyncLive ? 'Sync: ON' : 'Sync: OFF';
+                btnAudioSyncLive.innerHTML = `<svg class="icon-svg sm" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg> <span class="btn-text">${syncText}</span>`;
                 btnAudioSyncLive.classList.toggle('active', isAudioSyncLive);
             }
         }
@@ -467,7 +469,8 @@
         function toggleAudioDeckCue() {
             isAudioDeckCueOn = !isAudioDeckCueOn;
             if (btnCueAudioDeck) {
-                btnCueAudioDeck.innerText = isAudioDeckCueOn ? '🎧 Cue: ON' : '🎧 Cue: OFF';
+                const cueText = isAudioDeckCueOn ? 'Cue: ON' : 'Cue: OFF';
+                btnCueAudioDeck.innerHTML = `<svg class="icon-svg sm" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg> <span class="btn-text">${cueText}</span>`;
                 btnCueAudioDeck.classList.toggle('active', isAudioDeckCueOn);
             }
             if (isAudioDeckCueOn && operatorCuePlayer && operatorAudioDeck) {

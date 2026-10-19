@@ -640,7 +640,7 @@
                 pvwContainer.appendChild(img);
                 pvwTimeDisplay.innerText = 'STATIC IMAGE';
                 pvwScrubber.value = 0;
-                btnPvwPlayPause.innerText = '▶ Play';
+                btnPvwPlayPause.innerHTML = '<svg class="icon-svg sm" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><span class="btn-text">Play</span>';
                 btnPvwPlayPause.onclick = null;
             }
         }
@@ -648,7 +648,8 @@
         // Cue Audio (Headphone Listen)
         btnCueAudio.addEventListener('click', () => {
             isCueAudioOn = !isCueAudioOn;
-            btnCueAudio.innerText = `🎧 Cue: ${isCueAudioOn ? 'ON' : 'OFF'}`;
+            const status = isCueAudioOn ? 'ON' : 'OFF';
+            btnCueAudio.innerHTML = `<svg class="icon-svg sm" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg><span class="btn-text">Cue: ${status}</span>`;
             btnCueAudio.style.color = isCueAudioOn ? 'var(--pvw-green)' : 'var(--text-main)';
             const vid = pvwContainer.querySelector('video');
             if (vid) {

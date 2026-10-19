@@ -61,6 +61,37 @@
             color: var(--text-muted);
         }
 
+        /* Technical Broadcast Vector Icons (Lucide Standard) */
+        .icon-svg {
+            width: 14px;
+            height: 14px;
+            stroke-width: 2;
+            stroke: currentColor;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            vertical-align: middle;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .icon-svg.sm {
+            width: 12px;
+            height: 12px;
+        }
+
+        .icon-svg.lg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn-icon-label {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
         /* Pro Broadcast Accessible Focus Ring */
         :focus-visible {
             outline: 2px solid var(--accent-cyan) !important;
