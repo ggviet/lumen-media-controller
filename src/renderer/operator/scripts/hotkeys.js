@@ -15,8 +15,10 @@
         btnSafeLogo.addEventListener('click', () => {
             if (!canExecutePanicAction('SAFE_LOGO')) return;
             btnSafeLogo.classList.toggle('active');
+            const customSafePath = window.customSafeLogoPath || localStorage.getItem('lumen_custom_safelogo_path');
+            const defaultPath = path.join(resolveOperatorAssetDir(), 'sample_keyvisual.svg');
             ipcRenderer.send('stage-control', 'SAFE_LOGO', {
-                logoPath: path.join(resolveOperatorAssetDir(), 'sample_keyvisual.svg')
+                logoPath: customSafePath || defaultPath
             });
         });
 

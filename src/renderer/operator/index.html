@@ -358,13 +358,74 @@
             </div>
 
             <!-- Tab 2: Overlays Control -->
-            <div id="tab-overlays" class="settings-tab-pane" style="display:none; flex-direction:column;">
+            <div id="tab-overlays" class="settings-tab-pane" style="display:none; flex-direction:column; gap:8px;">
+                <!-- Event Watermark / Logo Customization Block -->
                 <div class="settings-block">
                     <div class="block-title">
-                        <span>Watermark / Corner Logo</span>
-                        <button id="btnToggleWatermark" class="btn-small">Logo: OFF</button>
+                        <span>Event Watermark (Corner Logo)</span>
+                        <button id="btnToggleWatermark" class="btn-small" style="font-weight:700;">Logo: OFF</button>
                     </div>
-                    <p style="font-size:11px; color:var(--text-dim); margin-top:4px;">Hiển thị logo sự kiện ở góc phải trên cùng của màn hình sân khấu.</p>
+
+                    <!-- Watermark File & Preview Row -->
+                    <div style="display:flex; align-items:center; gap:8px; margin-top:8px; padding:6px; background:#05070a; border-radius:var(--radius-micro); border:1px solid #1a202c;">
+                        <div id="watermarkThumbWrap" style="width:40px; height:40px; display:flex; align-items:center; justify-content:center; background:#0b0f17; border:1px solid var(--border-color); border-radius:3px; overflow:hidden; flex-shrink:0;">
+                            <img id="watermarkPreviewThumb" src="../../assets/logo.svg" alt="Logo Thumb" style="max-width:100%; max-height:100%; object-fit:contain;">
+                        </div>
+                        <div style="flex:1; min-width:0;">
+                            <div id="watermarkFileName" style="font-size:11px; font-weight:700; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="logo.svg (Mặc định)">logo.svg (Mặc định)</div>
+                            <div style="font-size:9px; color:var(--text-muted); margin-top:2px;">PNG, SVG, JPG (Khuyên dùng PNG trong suốt)</div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:4px; flex-shrink:0;">
+                            <button id="btnSelectWatermark" class="btn-small btn-icon-label" style="height:24px; padding:0 8px; font-size:10px; font-weight:700;" title="Chọn file logo sự kiện từ máy"><svg class="icon-svg sm" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg> Đổi Logo</button>
+                            <button id="btnResetWatermark" class="btn-small" style="height:20px; padding:0 6px; font-size:9px; color:var(--text-dim);" title="Khôi phục logo mặc định">Mặc định</button>
+                        </div>
+                    </div>
+
+                    <!-- Watermark Placement & Styling Controls -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px;">
+                        <div>
+                            <label for="watermarkPosSelect" class="micro-label" style="display:block; margin-bottom:2px;">Vị trí góc:</label>
+                            <select id="watermarkPosSelect" class="btn-small" style="width:100%; font-size:10px; font-weight:700;" aria-label="Vị trí hiển thị logo">
+                                <option value="top-right" selected>Góc Trên - Phải</option>
+                                <option value="top-left">Góc Trên - Trái</option>
+                                <option value="bottom-right">Góc Dưới - Phải</option>
+                                <option value="bottom-left">Góc Dưới - Trái</option>
+                            </select>
+                        </div>
+                        <div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <label for="watermarkOpacitySlider" class="micro-label">Độ mờ (Opacity):</label>
+                                <span id="watermarkOpacityVal" style="font-size:10px; font-family:'JetBrains Mono', Consolas, monospace; color:var(--accent-cyan); font-weight:800;">85%</span>
+                            </div>
+                            <div class="slider-wrap pro-fader-wrap" style="margin-top:2px;">
+                                <input type="range" id="watermarkOpacitySlider" min="10" max="100" step="5" value="85" aria-label="Độ trong suốt logo">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency Safe Logo / Key Visual Backdrop Block -->
+                <div class="settings-block">
+                    <div class="block-title">
+                        <span>Safe Logo / Event Backdrop (F1 / [4])</span>
+                        <span class="micro-label" style="color:var(--text-muted); font-size:9px;">KHẨN CẤP / CHỜ SỰ KIỆN</span>
+                    </div>
+
+                    <!-- Safe Logo File & Preview Row -->
+                    <div style="display:flex; align-items:center; gap:8px; margin-top:8px; padding:6px; background:#05070a; border-radius:var(--radius-micro); border:1px solid #1a202c;">
+                        <div id="safeLogoThumbWrap" style="width:56px; height:36px; display:flex; align-items:center; justify-content:center; background:#0b0f17; border:1px solid var(--border-color); border-radius:3px; overflow:hidden; flex-shrink:0;">
+                            <img id="safeLogoPreviewThumb" src="../../assets/sample_keyvisual.svg" alt="Safe Backdrop Thumb" style="width:100%; height:100%; object-fit:cover;">
+                        </div>
+                        <div style="flex:1; min-width:0;">
+                            <div id="safeLogoFileName" style="font-size:11px; font-weight:700; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="sample_keyvisual.svg (Mặc định)">sample_keyvisual.svg (Mặc định)</div>
+                            <div style="font-size:9px; color:var(--text-muted); margin-top:2px;">Key Visual sự kiện 16:9 (JPG, PNG, SVG)</div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:4px; flex-shrink:0;">
+                            <button id="btnSelectSafeLogo" class="btn-small btn-icon-label" style="height:24px; padding:0 8px; font-size:10px; font-weight:700;" title="Chọn hình nền Key Visual sự kiện"><svg class="icon-svg sm" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg> Đổi KV/Nền</button>
+                            <button id="btnResetSafeLogo" class="btn-small" style="height:20px; padding:0 6px; font-size:9px; color:var(--text-dim);" title="Khôi phục nền mặc định">Mặc định</button>
+                        </div>
+                    </div>
+                    <p style="font-size:10px; color:var(--text-dim); margin-top:6px;">Khi kích hoạt <strong>SAFE LOGO (F1)</strong> trên thanh điều khiển khẩn cấp, hình ảnh Key Visual này sẽ ngay lập tức bao phủ toàn màn hình sân khấu.</p>
                 </div>
 
                 <!-- Ticker Control -->

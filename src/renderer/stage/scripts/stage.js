@@ -772,6 +772,10 @@
 
                 case 'TOGGLE_LOGO':
                 case 'UPDATE_LOGO':
+                    if (data && data.logoPath) {
+                        const wmImg = watermarkOverlay.querySelector('img');
+                        if (wmImg) wmImg.src = toMediaUrl(data.logoPath);
+                    }
                     if (data && typeof data.visible === 'boolean') {
                         watermarkOverlay.classList.toggle('visible', data.visible);
                     } else if (action === 'TOGGLE_LOGO') {

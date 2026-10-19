@@ -101,13 +101,188 @@
         ipcRenderer.on('displays-changed', () => refreshDisplays());
 
 
-        // Overlays
+        // Overlays: Watermark / Event Logo Controller
+        const watermarkPreviewThumb = document.getElementById('watermarkPreviewThumb');
+        const watermarkFileName = document.getElementById('watermarkFileName');
+        const btnSelectWatermark = document.getElementById('btnSelectWatermark');
+        const btnResetWatermark = document.getElementById('btnResetWatermark');
+        const watermarkPosSelect = document.getElementById('watermarkPosSelect');
+        const watermarkOpacitySlider = document.getElementById('watermarkOpacitySlider');
+        const watermarkOpacityVal = document.getElementById('watermarkOpacityVal');
+
+        let customWatermarkPath = localStorage.getItem('lumen_custom_watermark_path') || '';
+        let watermarkPosition = localStorage.getItem('lumen_watermark_position') || 'top-right';
+        let watermarkOpacity = parseFloat(localStorage.getItem('lumen_watermark_opacity') || '0.85');
+
+        if (watermarkPosSelect) watermarkPosSelect.value = watermarkPosition;
+        if (watermarkOpacitySlider) {
+            watermarkOpacitySlider.value = Math.round(watermarkOpacity * 100);
+            if (watermarkOpacityVal) watermarkOpacityVal.textContent = `${Math.round(watermarkOpacity * 100)}%`;
+        }
+
+        function updateWatermarkDisplay() {
+            if (customWatermarkPath) {
+                if (watermarkPreviewThumb) watermarkPreviewThumb.src = toMediaUrl(customWatermarkPath);
+                if (watermarkFileName) {
+                    const baseName = customWatermarkPath.replace(/\\/g, '/').split('/').pop();
+                    watermarkFileName.textContent = baseName;
+                    watermarkFileName.title = customWatermarkPath;
+                }
+            } else {
+                if (watermarkPreviewThumb) watermarkPreviewThumb.src = '../../assets/logo.svg';
+                if (watermarkFileName) {
+                    watermarkFileName.textContent = 'logo.svg (Mặc định)';
+                    watermarkFileName.title = 'logo.svg (Mặc định)';
+                }
+            }
+        }
+        updateWatermarkDisplay();
+
+        function syncWatermarkToStage() {
+            ipcRenderer.send('stage-control', 'UPDATE_LOGO', {
+                visible: watermarkVisible,
+                opacity: watermarkOpacity,
+                position: watermarkPosition,
+                logoPath: customWatermarkPath || ''
+            });
+        }
+
         btnToggleWatermark.addEventListener('click', () => {
             watermarkVisible = !watermarkVisible;
             btnToggleWatermark.innerText = `Logo: ${watermarkVisible ? 'ON' : 'OFF'}`;
             btnToggleWatermark.style.color = watermarkVisible ? 'var(--accent-blue)' : '';
-            ipcRenderer.send('stage-control', 'TOGGLE_LOGO');
+            syncWatermarkToStage();
         });
+
+        if (btnSelectWatermark) {
+            btnSelectWatermark.addEventListener('click', async () => {
+                try {
+                    const res = await ipcRenderer.invoke('open-file-dialog', {
+                        title: 'Chọn Logo sự kiện (Watermark)',
+                        filters: [
+                            { name: 'Hình ảnh Logo', extensions: ['png', 'svg', 'jpg', 'jpeg', 'webp'] },
+                            { name: 'Tất cả tập tin', extensions: ['*'] }
+                        ]
+                    });
+                    if (res && res.length > 0) {
+                        customWatermarkPath = res[0];
+                        localStorage.setItem('lumen_custom_watermark_path', customWatermarkPath);
+                        updateWatermarkDisplay();
+                        syncWatermarkToStage();
+                        if (typeof showOperatorToast === 'function') {
+                            showOperatorToast(`Đã nạp logo sự kiện mới!`, 'info');
+                        }
+                    }
+                } catch (err) {
+                    console.error('Lỗi chọn logo:', err);
+                }
+            });
+        }
+
+        if (btnResetWatermark) {
+            btnResetWatermark.addEventListener('click', () => {
+                customWatermarkPath = '';
+                localStorage.removeItem('lumen_custom_watermark_path');
+                updateWatermarkDisplay();
+                // Reset to default asset on stage
+                try {
+                    const defaultLogo = path.join(resolveOperatorAssetDir(), 'logo.svg');
+                    ipcRenderer.send('stage-control', 'UPDATE_LOGO', {
+                        visible: watermarkVisible,
+                        opacity: watermarkOpacity,
+                        position: watermarkPosition,
+                        logoPath: defaultLogo
+                    });
+                } catch (_) {
+                    syncWatermarkToStage();
+                }
+                if (typeof showOperatorToast === 'function') {
+                    showOperatorToast('Đã khôi phục Logo mặc định', 'info');
+                }
+            });
+        }
+
+        if (watermarkPosSelect) {
+            watermarkPosSelect.addEventListener('change', () => {
+                watermarkPosition = watermarkPosSelect.value;
+                localStorage.setItem('lumen_watermark_position', watermarkPosition);
+                syncWatermarkToStage();
+            });
+        }
+
+        if (watermarkOpacitySlider) {
+            watermarkOpacitySlider.addEventListener('input', () => {
+                const percent = parseInt(watermarkOpacitySlider.value, 10);
+                watermarkOpacity = percent / 100;
+                if (watermarkOpacityVal) watermarkOpacityVal.textContent = `${percent}%`;
+                localStorage.setItem('lumen_watermark_opacity', String(watermarkOpacity));
+                syncWatermarkToStage();
+            });
+        }
+
+        // Safe Logo / Event Key Visual Backdrop Controller
+        const safeLogoPreviewThumb = document.getElementById('safeLogoPreviewThumb');
+        const safeLogoFileName = document.getElementById('safeLogoFileName');
+        const btnSelectSafeLogo = document.getElementById('btnSelectSafeLogo');
+        const btnResetSafeLogo = document.getElementById('btnResetSafeLogo');
+
+        let customSafeLogoPath = localStorage.getItem('lumen_custom_safelogo_path') || '';
+        window.customSafeLogoPath = customSafeLogoPath;
+
+        function updateSafeLogoDisplay() {
+            if (customSafeLogoPath) {
+                if (safeLogoPreviewThumb) safeLogoPreviewThumb.src = toMediaUrl(customSafeLogoPath);
+                if (safeLogoFileName) {
+                    const baseName = customSafeLogoPath.replace(/\\/g, '/').split('/').pop();
+                    safeLogoFileName.textContent = baseName;
+                    safeLogoFileName.title = customSafeLogoPath;
+                }
+            } else {
+                if (safeLogoPreviewThumb) safeLogoPreviewThumb.src = '../../assets/sample_keyvisual.svg';
+                if (safeLogoFileName) {
+                    safeLogoFileName.textContent = 'sample_keyvisual.svg (Mặc định)';
+                    safeLogoFileName.title = 'sample_keyvisual.svg (Mặc định)';
+                }
+            }
+        }
+        updateSafeLogoDisplay();
+
+        if (btnSelectSafeLogo) {
+            btnSelectSafeLogo.addEventListener('click', async () => {
+                try {
+                    const res = await ipcRenderer.invoke('open-file-dialog', {
+                        title: 'Chọn ảnh nền sự kiện / Safe Key Visual (16:9)',
+                        filters: [
+                            { name: 'Hình ảnh Backdrop', extensions: ['jpg', 'jpeg', 'png', 'svg', 'webp'] },
+                            { name: 'Tất cả tập tin', extensions: ['*'] }
+                        ]
+                    });
+                    if (res && res.length > 0) {
+                        customSafeLogoPath = res[0];
+                        window.customSafeLogoPath = customSafeLogoPath;
+                        localStorage.setItem('lumen_custom_safelogo_path', customSafeLogoPath);
+                        updateSafeLogoDisplay();
+                        if (typeof showOperatorToast === 'function') {
+                            showOperatorToast(`Đã cập nhật ảnh nền Safe Logo / KV sự kiện!`, 'info');
+                        }
+                    }
+                } catch (err) {
+                    console.error('Lỗi chọn safe logo:', err);
+                }
+            });
+        }
+
+        if (btnResetSafeLogo) {
+            btnResetSafeLogo.addEventListener('click', () => {
+                customSafeLogoPath = '';
+                window.customSafeLogoPath = '';
+                localStorage.removeItem('lumen_custom_safelogo_path');
+                updateSafeLogoDisplay();
+                if (typeof showOperatorToast === 'function') {
+                    showOperatorToast('Đã khôi phục Key Visual mặc định', 'info');
+                }
+            });
+        }
 
         // Helper: Resolve active badge configuration (Preset or Custom)
         const tickerBadgeSelect = document.getElementById('tickerBadgeSelect');
