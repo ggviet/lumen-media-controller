@@ -10,19 +10,20 @@
     <link rel="stylesheet" href="styles/monitors.css">
     <link rel="stylesheet" href="styles/controls.css">
     <style>
-        .badge-fmt-mp3 { background: rgba(6, 182, 212, 0.2); color: #00e5ff; border: 1px solid rgba(0, 229, 255, 0.4); }
-        .badge-fmt-wav { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
-        .badge-fmt-m4a { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
-        .badge-fmt-aac { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
-        .badge-fmt-flac { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
-        .audio-deck-badge { font-size: 9px; font-weight: 800; padding: 1px 5px; border-radius: 3px; font-family: 'JetBrains Mono', monospace; }
-        .audio-deck-badge.standby { background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.4); }
-        .audio-deck-badge.live { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; animation: livePulse 1.5s infinite; }
+        .badge-fmt-mp3 { background: rgba(6, 182, 212, 0.15); color: #00e5ff; border: 1px solid rgba(0, 229, 255, 0.35); }
+        .badge-fmt-wav { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.35); }
+        .badge-fmt-m4a { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.35); }
+        .badge-fmt-aac { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); }
+        .badge-fmt-flac { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
+        .audio-deck-badge { font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 3px; font-family: 'JetBrains Mono', Consolas, monospace; letter-spacing: 0.06em; line-height: 1; display: inline-flex; align-items: center; }
+        .audio-deck-badge.standby { background: rgba(100, 116, 139, 0.12); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.35); }
+        .audio-deck-badge.live { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid #10b981; animation: livePulse 1.5s infinite; }
         @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
         .audio-scrubber-slider { -webkit-appearance: none; appearance: none; height: 5px; background: #1e293b; border-radius: 3px; outline: none; cursor: pointer; }
         .audio-scrubber-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-cyan); cursor: pointer; box-shadow: 0 0 6px rgba(0, 229, 255, 0.6); }
         .btn-audio-play.playing { background: var(--accent-cyan); color: #000; font-weight: 800; }
-        .btn-sync.active { background: rgba(6, 182, 212, 0.2); color: var(--accent-cyan); border-color: rgba(6, 182, 212, 0.5); }
+        .btn-sync { transition: all 0.15s ease; border-radius: 3px; }
+        .btn-sync.active { background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); border-color: rgba(6, 182, 212, 0.5); }
         .btn-fade-out:active { background: rgba(245, 158, 11, 0.3); }
         .btn-audio-cue.active { background: rgba(16, 185, 129, 0.2); color: var(--pvw-green); border-color: rgba(16, 185, 129, 0.5); }
     </style>
@@ -226,21 +227,22 @@
             <div id="tab-audio" class="settings-tab-pane active" style="display:flex; flex-direction:column;">
                 <!-- Dedicated Audio / BGM Deck Engine -->
                 <div class="settings-block audio-deck-block" id="audioDeckBlock">
-                    <div class="block-title">
-                        <div style="display:flex; align-items:center; gap:6px;">
-                            <span style="color:var(--accent-cyan); font-weight:800; font-size:11px; letter-spacing:0.06em;">AUDIO / BGM DECK</span>
-                            <span id="audioDeckLiveBadge" class="audio-deck-badge standby">STANDBY</span>
+                    <!-- Redesigned Audio Channel Header Strip -->
+                    <div class="audio-deck-header-strip" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; gap:8px;">
+                        <div style="display:flex; align-items:center; gap:6px; min-width:0;">
+                            <span style="color:var(--accent-cyan); font-weight:900; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; white-space:nowrap;">AUDIO DECK</span>
+                            <span id="audioDeckLiveBadge" class="audio-deck-badge standby" style="padding:2px 6px; font-size:9px;">STANDBY</span>
                         </div>
-                        <div style="display:flex; gap:4px;">
-                            <button id="btnAudioSyncLive" class="btn-small btn-sync active" title="Tự động phát đồng thời khi nhấn GO LIVE">🔗 Sync: ON</button>
-                            <button id="btnLoadAudioDeckFile" class="btn-small" title="Nạp bài nhạc mới (+ Load BGM)">+ Load</button>
+                        <div style="display:flex; align-items:center; gap:4px; flex-shrink:0;">
+                            <button id="btnAudioSyncLive" class="btn-small btn-sync active" style="height:24px; padding:0 8px; font-size:10px; font-weight:700;" title="Tự động phát đồng thời khi nhấn GO LIVE">🔗 Sync: ON</button>
+                            <button id="btnLoadAudioDeckFile" class="btn-small" style="height:24px; padding:0 8px; font-size:10px; font-weight:700; color:var(--text-main);" title="Nạp bài nhạc mới (+ Load BGM)">+ Load</button>
                         </div>
                     </div>
 
-                    <!-- Active Track Info & Format -->
-                    <div class="audio-deck-track-info" style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
-                        <span id="audioDeckFmtBadge" class="badge-fmt badge-fmt-mp3">MP3</span>
-                        <div id="audioDeckTrackTitle" class="audio-deck-title" title="Chưa nạp bài nhạc" style="font-size:11px; font-weight:700; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1;">NO TRACK LOADED</div>
+                    <!-- Track Meta Bar with Integrated Format Badge -->
+                    <div class="audio-deck-track-info" style="display:flex; align-items:center; gap:6px; margin-bottom:6px; background:#05070b; border:1px solid #19202e; border-radius:3px; padding:4px 8px;">
+                        <span id="audioDeckFmtBadge" class="badge-fmt badge-fmt-mp3" style="font-size:9px; padding:1px 5px; font-weight:800;">MP3</span>
+                        <div id="audioDeckTrackTitle" class="audio-deck-title" title="Chưa nạp bài nhạc" style="font-size:11px; font-weight:700; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1; font-family:'JetBrains Mono', Consolas, monospace;">NO TRACK LOADED</div>
                     </div>
 
                     <!-- Interactive Waveform Display (HTML5 Canvas) -->
