@@ -137,6 +137,80 @@
         let ftbAnimId = null;
         let activeTransitionToken = 0;
 
+        // Stage Live Audio Analyser Telemetry
+        let stageAudioCtx = null;
+        let stageAnalyser = null;
+        let stageSourceMap = new WeakMap();
+        let stageMeterTimer = null;
+
+        function getOrCreateStageAudioContext() {
+            if (!stageAudioCtx) {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (AudioCtx) {
+                    stageAudioCtx = new AudioCtx();
+                    stageAnalyser = stageAudioCtx.createAnalyser();
+                    stageAnalyser.fftSize = 256;
+                    stageAnalyser.smoothingTimeConstant = 0.5;
+                }
+            }
+            if (stageAudioCtx && stageAudioCtx.state === 'suspended') {
+                stageAudioCtx.resume().catch(() => {});
+            }
+            return stageAudioCtx;
+        }
+
+        function hookVideoToStageMeter(videoEl) {
+            if (!videoEl) return;
+            try {
+                const ctx = getOrCreateStageAudioContext();
+                if (!ctx || !stageAnalyser) return;
+                if (!stageSourceMap.has(videoEl)) {
+                    const source = ctx.createMediaElementSource(videoEl);
+                    source.connect(stageAnalyser);
+                    stageAnalyser.connect(ctx.destination);
+                    stageSourceMap.set(videoEl, source);
+                }
+                startStageMeterBroadcast();
+            } catch (err) {
+                console.warn('hookVideoToStageMeter error (likely already attached):', err);
+            }
+        }
+
+        function startStageMeterBroadcast() {
+            if (stageMeterTimer) return;
+            const dataArr = new Uint8Array(stageAnalyser ? stageAnalyser.fftSize : 128);
+
+            stageMeterTimer = setInterval(() => {
+                const activeDeck = decks[activeDeckKey];
+                const activeVid = activeDeck ? activeDeck.querySelector('video') : null;
+                const isPlaying = activeVid && !activeVid.paused && !activeVid.ended;
+
+                if (!isPlaying || isMuted || isBlackout || isFTB || !stageAnalyser) {
+                    ipcRenderer.send('stage-audio-meter', { rmsL: 0, peakR: 0, isPlaying: false });
+                    return;
+                }
+
+                stageAnalyser.getByteTimeDomainData(dataArr);
+                let sum = 0;
+                let peak = 0;
+                for (let i = 0; i < dataArr.length; i++) {
+                    const val = (dataArr[i] - 128) / 128;
+                    sum += val * val;
+                    const abs = Math.abs(val);
+                    if (abs > peak) peak = abs;
+                }
+                const rms = Math.sqrt(sum / dataArr.length);
+                const rmsDb = rms > 0.0001 ? 20 * Math.log10(rms) : -60;
+                const peakDb = peak > 0.0001 ? 20 * Math.log10(peak) : -60;
+
+                const curVol = activeVid.volume !== undefined ? activeVid.volume : masterVolume;
+                const pctL = Math.max(0, Math.min(100, ((rmsDb + 45) / 45) * 100)) * curVol;
+                const pctR = Math.max(0, Math.min(100, ((peakDb + 45) / 45) * 100)) * curVol;
+
+                ipcRenderer.send('stage-audio-meter', { rmsL: pctL, peakR: pctR, isPlaying: true });
+            }, 40);
+        }
+
         function toMediaUrl(filePath) {
             if (!filePath || typeof filePath !== 'string') return '';
             if (filePath.startsWith('file://') || filePath.startsWith('data:') || filePath.startsWith('blob:') || filePath.startsWith('http://') || filePath.startsWith('https://')) {
@@ -441,6 +515,7 @@
                 await preRollVideo(mediaElement, 500);
 
                 try {
+                    hookVideoToStageMeter(mediaElement);
                     await mediaElement.play();
                 } catch (e) {
                     console.warn('Video auto-play prevented:', e);

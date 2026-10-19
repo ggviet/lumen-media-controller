@@ -172,20 +172,114 @@
             ipcRenderer.send('stage-control', 'SET_MUTE', { muted: isMasterMuted });
         });
 
-        // Master VU Meter Simulation
-        setInterval(() => {
-            const hasAudioPlaying = (typeof operatorAudioDeck !== 'undefined' && operatorAudioDeck && !operatorAudioDeck.paused);
-            if (isMasterMuted || (!pgmCue && !hasAudioPlaying)) {
-                vuLeft.style.width = '0%';
-                vuRight.style.width = '0%';
-            } else {
-                const vol = parseFloat(masterVolumeSlider.value);
-                const rL = (30 + Math.random() * 65) * vol;
-                const rR = (28 + Math.random() * 67) * vol;
-                vuLeft.style.width = rL + '%';
-                vuRight.style.width = rR + '%';
+        // ==================== REAL-TIME BROADCAST VU METER ENGINE (WEB AUDIO API) ====================
+        let masterAudioCtx = null;
+        let masterAnalyser = null;
+        let masterSourceNode = null;
+        let vuAnimFrameId = null;
+        let vuSmoothL = 0;
+        let vuSmoothR = 0;
+
+        function initMasterAudioAnalyser() {
+            if (masterAudioCtx) return;
+            try {
+                const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtxClass) return;
+                masterAudioCtx = new AudioCtxClass();
+                masterAnalyser = masterAudioCtx.createAnalyser();
+                masterAnalyser.fftSize = 256;
+                masterAnalyser.smoothingTimeConstant = 0.6; // Studio ballistic response
+
+                const deckEl = document.getElementById('operatorAudioDeck');
+                if (deckEl) {
+                    masterSourceNode = masterAudioCtx.createMediaElementSource(deckEl);
+                    masterSourceNode.connect(masterAnalyser);
+                    masterAnalyser.connect(masterAudioCtx.destination);
+                }
+
+                startVuMeterLoop();
+            } catch (err) {
+                console.warn('Real Web Audio VU Meter init failed, fallback gracefully:', err);
             }
-        }, 120);
+        }
+
+        let stageMeterL = 0;
+        let stageMeterR = 0;
+
+        // Listen for live video audio RMS from Stage window
+        if (typeof ipcRenderer !== 'undefined' && ipcRenderer.on) {
+            ipcRenderer.on('stage-audio-meter', (event, data) => {
+                if (!data || !data.isPlaying || isMasterMuted) {
+                    stageMeterL = 0;
+                    stageMeterR = 0;
+                } else {
+                    stageMeterL = Number.isFinite(data.rmsL) ? data.rmsL : 0;
+                    stageMeterR = Number.isFinite(data.peakR) ? data.peakR : 0;
+                }
+            });
+        }
+
+        function startVuMeterLoop() {
+            if (vuAnimFrameId) cancelAnimationFrame(vuAnimFrameId);
+            const timeData = new Uint8Array(masterAnalyser ? masterAnalyser.fftSize : 128);
+
+            function updateVu() {
+                vuAnimFrameId = requestAnimationFrame(updateVu);
+
+                let localDeckL = 0;
+                let localDeckR = 0;
+
+                const hasDeckPlaying = operatorAudioDeck && !operatorAudioDeck.paused && !operatorAudioDeck.ended;
+                if (!isMasterMuted && hasDeckPlaying && masterAnalyser) {
+                    if (masterAudioCtx && masterAudioCtx.state === 'suspended') {
+                        masterAudioCtx.resume().catch(() => {});
+                    }
+
+                    masterAnalyser.getByteTimeDomainData(timeData);
+                    let sumSquares = 0;
+                    let peak = 0;
+                    for (let i = 0; i < timeData.length; i++) {
+                        const norm = (timeData[i] - 128) / 128; // -1.0 to 1.0
+                        sumSquares += norm * norm;
+                        const abs = Math.abs(norm);
+                        if (abs > peak) peak = abs;
+                    }
+                    const rms = Math.sqrt(sumSquares / timeData.length);
+                    const vol = masterVolumeSlider ? parseFloat(masterVolumeSlider.value) : 1.0;
+
+                    const rmsDb = rms > 0.0001 ? 20 * Math.log10(rms) : -60;
+                    localDeckL = Math.max(0, Math.min(100, ((rmsDb + 45) / 45) * 100)) * vol;
+                    localDeckR = Math.max(0, Math.min(100, (((peak > 0 ? 20 * Math.log10(peak) : -60) + 45) / 45) * 100)) * vol;
+                }
+
+                // Combine Stage Program Media (MP4) and BGM Deck (MP3)
+                const targetL = isMasterMuted ? 0 : Math.max(localDeckL, stageMeterL);
+                const targetR = isMasterMuted ? 0 : Math.max(localDeckR, stageMeterR);
+
+                // Peak attack & smooth ballistic decay
+                vuSmoothL = targetL > vuSmoothL ? targetL : (vuSmoothL * 0.88 + targetL * 0.12);
+                vuSmoothR = targetR > vuSmoothR ? targetR : (vuSmoothR * 0.88 + targetR * 0.12);
+
+                // Update Master Console Horizontal VU Bars (Stage + BGM mixed)
+                if (vuLeft) vuLeft.style.width = `${vuSmoothL.toFixed(1)}%`;
+                if (vuRight) vuRight.style.width = `${vuSmoothR.toFixed(1)}%`;
+
+                // Update Audio Deck Mini Vertical VU Bars (Dedicated only to Audio Deck)
+                if (audioDeckVuL) audioDeckVuL.style.height = `${localDeckL.toFixed(1)}%`;
+                if (audioDeckVuR) audioDeckVuR.style.height = `${localDeckR.toFixed(1)}%`;
+            }
+
+            updateVu();
+        }
+
+        // Initialize audio analyser on first user interaction or playback
+        window.addEventListener('click', () => {
+            initMasterAudioAnalyser();
+            if (masterAudioCtx && masterAudioCtx.state === 'suspended') {
+                masterAudioCtx.resume().catch(() => {});
+            }
+        }, { once: true });
+
 
         // ==================== DEDICATED AUDIO / BGM DECK ENGINE ====================
         const operatorAudioDeck = document.getElementById('operatorAudioDeck');
@@ -381,6 +475,11 @@
                 operatorAudioDeck.setSinkId(sinkId).catch(() => operatorAudioDeck.setSinkId(''));
             }
 
+            initMasterAudioAnalyser();
+            if (masterAudioCtx && masterAudioCtx.state === 'suspended') {
+                masterAudioCtx.resume().catch(() => {});
+            }
+
             operatorAudioDeck.play().then(() => {
                 isAudioDeckPlaying = true;
                 if (audioDeckLiveBadge) {
@@ -536,18 +635,6 @@
 
                 const ratio = dur > 0 ? (cur / dur) : 0;
                 drawAudioWaveform(currentWaveformPeaks, ratio);
-
-                // Stereo Mini VU Animation
-                if (!operatorAudioDeck.paused && !isMasterMuted) {
-                    const vol = masterVolumeSlider ? parseFloat(masterVolumeSlider.value) : 1.0;
-                    const lvL = Math.min(100, (40 + Math.random() * 55) * vol);
-                    const lvR = Math.min(100, (38 + Math.random() * 57) * vol);
-                    if (audioDeckVuL) audioDeckVuL.style.height = `${lvL}%`;
-                    if (audioDeckVuR) audioDeckVuR.style.height = `${lvR}%`;
-                } else {
-                    if (audioDeckVuL) audioDeckVuL.style.height = '0%';
-                    if (audioDeckVuR) audioDeckVuR.style.height = '0%';
-                }
             };
 
             operatorAudioDeck.onended = () => {

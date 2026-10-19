@@ -592,3 +592,11 @@ ipcMain.on('stage-status', (event, status) => {
     operatorWindow.webContents.send('stage-status', status);
   }
 });
+
+// Stage Audio RMS Meter Telemetry forwarding to Operator Dashboard
+ipcMain.on('stage-audio-meter', (event, data) => {
+  if (operatorWindow && !operatorWindow.isDestroyed()) {
+    operatorWindow.webContents.send('stage-audio-meter', data);
+  }
+});
+
