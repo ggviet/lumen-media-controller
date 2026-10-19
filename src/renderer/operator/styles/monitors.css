@@ -288,6 +288,73 @@
             overflow: hidden;
         }
 
+        /* Pro Broadcast Preview Toolbar Alignment */
+        .pvw-mon-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 0 10px;
+        }
+
+        .pvw-ctrl-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .pvw-ctrl-left {
+            flex-shrink: 0;
+        }
+
+        .pvw-btn {
+            height: 26px;
+            padding: 0 8px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+            line-height: 24px;
+        }
+
+        .pvw-ctrl-center {
+            flex: 1 1 auto;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 4px;
+        }
+
+        .pvw-time-tag {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .pvw-scrubber-box {
+            flex: 1 1 auto;
+            min-width: 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        .pvw-ctrl-right {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .pvw-select {
+            height: 26px;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 0 6px;
+            cursor: pointer;
+        }
+
         #pvwTimeDisplay, #pgmElapsed, #pgmRemaining {
             font-family: 'JetBrains Mono', Consolas, 'SF Mono', monospace;
             font-variant-numeric: tabular-nums lining-nums;

@@ -141,18 +141,25 @@
                         </div>
                     </div>
 
-                    <div class="mon-footer">
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <button id="btnPvwPlayPause" class="btn-small" style="padding: 2px 8px;">▶ Play</button>
-                            <button id="btnCueAudio" class="btn-small" title="Nghe thử âm thanh qua tai nghe">🎧 Cue: OFF</button>
-                            <span id="pvwTimeDisplay">00:00 / 00:00</span>
+                    <div class="mon-footer pvw-mon-footer">
+                        <!-- Left Controls: Transport & PFL Audio -->
+                        <div class="pvw-ctrl-group pvw-ctrl-left">
+                            <button id="btnPvwPlayPause" class="btn-small pvw-btn" title="Phát / Dừng xem trước">▶ Play</button>
+                            <button id="btnCueAudio" class="btn-small pvw-btn" title="Nghe thử âm thanh qua tai nghe (PFL)">🎧 Cue: OFF</button>
                         </div>
-                        <div style="flex:1; max-width:140px; margin:0 8px; display:flex; align-items:center;">
-                            <input type="range" id="pvwScrubber" class="scrubber-slider" min="0" max="100" value="0" style="width:100%;">
+
+                        <!-- Center: Scrubber & Timecode -->
+                        <div class="pvw-ctrl-group pvw-ctrl-center">
+                            <span id="pvwTimeDisplay" class="pvw-time-tag">00:00 / 00:00</span>
+                            <div class="pvw-scrubber-box">
+                                <input type="range" id="pvwScrubber" class="scrubber-slider" min="0" max="100" value="0">
+                            </div>
                         </div>
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <span class="micro-label">END:</span>
-                            <select id="pvwEndBehaviorSelect" class="btn-small" style="padding:2px 4px;">
+
+                        <!-- Right Controls: End Behavior Selector -->
+                        <div class="pvw-ctrl-group pvw-ctrl-right">
+                            <span class="micro-label" style="font-size:9px; color:var(--text-dim); margin-right:2px;">END:</span>
+                            <select id="pvwEndBehaviorSelect" class="btn-small pvw-select" title="Hành vi khi kết thúc video">
                                 <option value="HOLD_LAST_FRAME">Hold Frame Cuối</option>
                                 <option value="LOOP">Lặp Vô Tận (Loop)</option>
                                 <option value="AUTO_NEXT">Auto Next</option>
