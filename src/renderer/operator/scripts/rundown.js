@@ -404,6 +404,8 @@
             pvwTypeTag.innerText = cue.type.toUpperCase();
             pvwEndBehaviorSelect.value = cue.endBehavior;
             document.getElementById('pvwFrame').classList.add('has-content');
+            const pvwEmptyHint = document.getElementById('pvwEmptyHint');
+            if (pvwEmptyHint) pvwEmptyHint.style.display = 'none';
 
             // Reset transport controls on new cue load
             btnPvwPlayPause.innerText = '▶ Play';
